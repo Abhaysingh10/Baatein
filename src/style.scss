@@ -1,0 +1,45 @@
+$bg-light: #ffffff;
+$bg-dark: #000;
+
+body{
+    background-color: $bg-dark;
+    color: $bg-light;
+}
+
+@font-face {
+    font-family: "Rubik";
+    src: local("Rubik"), url("./Assest/Font/Rubik/static/Rubik-Regular.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Raleway";
+    src: local("Raleway"), url("./Assest/Font/Raleway/static/Raleway-Regular.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Quicksand";
+    src: local("Quicksand"), url("./Assest/Font/Quicksand/static/Quicksand-Regular.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Handjet";
+    src: local("Handjet"), url("./Assest/Font/Handjet/Handjet-VariableFont_ELGR\,ELSH\,wght.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Poppins";
+    src: local("Poppins"), url("./Assest/Font/Poppins/Poppins-Regular.ttf") format("truetype");
+  }
+  
+  @font-face {
+    font-family: "Outfit";
+    src: local("Outfit"), url("./Assest/Font/Outfit/Outfit-VariableFont_wght.ttf") format("truetype");
+  }
+
+  
+body{
+    background-color: $bg-dark;
+    color: $bg-light;
+    font-family: "Outfit";
+}
+
