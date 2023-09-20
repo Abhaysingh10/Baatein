@@ -1,45 +1,74 @@
 $bg-light: #ffffff;
-$bg-dark: #000;
+$bg-dark: #3f3f3f;
 
-body{
-    background-color: $bg-dark;
-    color: $bg-light;
+
+@font-face {
+  font-family: "Rubik";
+  src: local("Rubik"), url("./Assest/Font/Rubik/static/Rubik-Regular.ttf") format("truetype");
 }
 
 @font-face {
-    font-family: "Rubik";
-    src: local("Rubik"), url("./Assest/Font/Rubik/static/Rubik-Regular.ttf") format("truetype");
-  }
-  
-  @font-face {
-    font-family: "Raleway";
-    src: local("Raleway"), url("./Assest/Font/Raleway/static/Raleway-Regular.ttf") format("truetype");
-  }
-  
-  @font-face {
-    font-family: "Quicksand";
-    src: local("Quicksand"), url("./Assest/Font/Quicksand/static/Quicksand-Regular.ttf") format("truetype");
-  }
-  
-  @font-face {
-    font-family: "Handjet";
-    src: local("Handjet"), url("./Assest/Font/Handjet/Handjet-VariableFont_ELGR\,ELSH\,wght.ttf") format("truetype");
-  }
-  
-  @font-face {
-    font-family: "Poppins";
-    src: local("Poppins"), url("./Assest/Font/Poppins/Poppins-Regular.ttf") format("truetype");
-  }
-  
-  @font-face {
-    font-family: "Outfit";
-    src: local("Outfit"), url("./Assest/Font/Outfit/Outfit-VariableFont_wght.ttf") format("truetype");
-  }
-
-  
-body{
-    background-color: $bg-dark;
-    color: $bg-light;
-    font-family: "Outfit";
+  font-family: "Raleway";
+  src: local("Raleway"), url("./Assest/Font/Raleway/static/Raleway-Regular.ttf") format("truetype");
 }
 
+@font-face {
+  font-family: "Quicksand";
+  src: local("Quicksand"), url("./Assest/Font/Quicksand/static/Quicksand-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Handjet";
+  src: local("Handjet"), url("./Assest/Font/Handjet/Handjet-VariableFont_ELGR\,ELSH\,wght.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: local("Poppins"), url("./Assest/Font/Poppins/Poppins-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: local("Outfit"), url("./Assest/Font/Outfit/Outfit-VariableFont_wght.ttf") format("truetype");
+}
+
+
+body {
+  background-color: rgb(0, 255, 76);
+  font-family: "Outfit";
+}
+
+.light{
+  color: $bg-dark;
+  background-color: $bg-light;
+}
+
+.dark{
+  color: $bg-light;
+  background-color: $bg-dark;
+
+}
+
+@media all and (min-width: 1024px) and (max-width: 1280px) {
+  body{
+    background-color: red;
+  }
+}
+
+@media all and (min-width: 768px) and (max-width: 1024px) {
+  body{
+    background-color: red;
+  }
+}
+
+@media all and (min-width: 480px) and (max-width: 768px) {
+  body{
+    background-color: red;
+  }
+}
+
+@media all and (max-width: 480px) {
+  body{
+    background-color: rgb(20, 156, 115);
+  }
+}

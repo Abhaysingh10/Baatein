@@ -1,8 +1,9 @@
 import React from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
 import "./Login.scss";
-import Banner  from "./../../Assest/Image/banner.jpg";
-import Logo from './../../Assest/Image/Logo.png'
+import Banner from "./../../Assest/Image/banner.jpg";
+import DarkBanner from './../../Assest/Image/dark-banner.jpg'
+import Logo from "./../../Assest/Image/Logo.png";
 export const Login = () => {
   return (
     <div className="main">
@@ -11,6 +12,9 @@ export const Login = () => {
           <Col className="login-page-form">
             {/* <div> */}
             <div className="credential-box">
+              <div className="logo">
+                <Image src={Logo}></Image>
+              </div>
               <div class="input-icons">
                 <i class="bi bi-person"></i>
                 <input className="input-field" type="text" placeholder="Your login or e-mail" />
@@ -36,10 +40,7 @@ export const Login = () => {
             </div>
           </Col>
           <Col className="login-page-banner">
-            <Image src={Banner} style={{objectFit:"cover", borderRadius:"0px 10px 10px 0px"}} width="100%" height="100%"/>
-            <div className="logo">
-              <Image src={Logo}></Image>
-            </div>
+            <Image src={Banner} style={{ objectFit: "cover", borderRadius: "0px 10px 10px 0px" }} width="100%" height="100%" />
           </Col>
         </Row>
       </Container>
