@@ -1,44 +1,34 @@
-import { Menu } from "antd";
 import React from "react";
 import Github from "./../Assest/Image/github-pink.png";
 import "./Sidebar.scss";
-export const Sidebar = () => {
+import { Menu, Layout } from "antd";
+const { Header, Footer, Sider, Content } = Layout;
+
+const Sidebar = () => {
   const handleMainMenu = (second) => {};
   const goToNotification = (second) => {};
   const setViewText = (second) => {};
   const setViewProfile = (second) => {};
   return (
+    
     <div className="app-main-menu-container">
       <div className="row w-100">
         <div className="col-1">
           <div className="app-logo-container cursor-pointer">{/* <img src={Logo} alt="" /> */}</div>
         </div>
-
         <div className="col-8">
-          <Menu
-            onClick={(e) => handleMainMenu(e)}
-            className="app-menu-theme"
-            // theme='light'
-
-            mode="horizontal"
-            defaultSelectedKeys={[]}
-
-            // overflowedIndicator={<MenuOutlined />}
-          >
+          <Menu onClick={(e) => handleMainMenu(e)} className="app-menu-theme" mode="horizontal" defaultSelectedKeys={[]}>
             {new Array(6).fill(null).map((item) => {
               return (
                 <Menu.Item key={item?.id}>
                   <div className="icon">
                     <img src={Github} />
                   </div>
-
                   <span className="menu-title">Github</span>
                 </Menu.Item>
               );
             })}
           </Menu>
-
-          {/* </Drawer> */}
         </div>
 
         <div className="col-3 ">
@@ -86,3 +76,5 @@ export const Sidebar = () => {
     </div>
   );
 };
+
+export default Sidebar;
