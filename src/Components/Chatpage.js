@@ -25,11 +25,11 @@ const Chatpage = () => {
               </Row>
 
               {[
-                { id: 1, name: "Vally", chatDetails: "" },
-                { id: 2, name: "Ludvig", chatDetails: "" },
-                { id: 3, name: "Krishnah", chatDetails: "" },
-                { id: 4, name: "Vivian", chatDetails: "" },
-                { id: 5, name: "Shanna", chatDetails: "" },
+                { id: 1, name: "Vally", chatDetails: "", dateTime:"Today" },
+                { id: 2, name: "Ludvig", chatDetails: "", dateTime:"Today" },
+                { id: 3, name: "Krishnah", chatDetails: "", dateTime:"Yesterday" },
+                { id: 4, name: "Vivian", chatDetails: "", dateTime:"15-09-2023" },
+                { id: 5, name: "Shanna", chatDetails: "", dateTime:"10-09-2023" },
               ].map((ele, i) => {
                 return (
                   <>
@@ -49,7 +49,7 @@ const Chatpage = () => {
                               </Row>
                             </Col>
                             <Col md="auto">
-                              <span className="date-time">Yesterday</span>
+                              <span className="date-time">{ele.dateTime}</span>
                             </Col>
                           </Row>
                         </div>
