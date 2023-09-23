@@ -4,7 +4,10 @@
     align-items: center;
 }
 
+
+
 .main {
+    overflow: hidden;
     height: 100vh;
     width: 100vw;
     background-image: url('./../Assest/Image/chat-bg.jpg');
@@ -12,119 +15,160 @@
     background-size: cover;
     color: aliceblue;
 
-    .chat-list {
-        height: 80%;
-        width: 100%;
-        background-color: rgba(105, 235, 235, 0.404);
-        backdrop-filter: blur(5px);
-        border-radius: 5px;
+    .container {
+        margin: auto;
 
-        .logo {
-            @include center();
-            margin: 5px;
-        }
-
-        .search-chat {
-            // border-top: 1px solid rgba(187, 187, 187, 0.473);
-            padding: 20px;
-
-            input {
-                width: 100%;
-                height: 40px;
-                border-radius: 5px;
-                border: none;
-                background-color: rgba(19, 39, 39, 0.658);
-                box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-              
-                // box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-
-                .input:focus {
-                    border: 3px solid red;
-                }
-
-
-            }
-
-            input::-webkit-input-placeholder {
-                /* Chrome/Opera/Safari */
-                color: rgb(255, 255, 255);
-                margin-left: 10px;
-            }
-
-            input::-moz-placeholder {
-                /* Firefox 19+ */
-                color: rgb(255, 0, 0);
-                margin-left: 10px;
-            }
-
-            input::-ms-input-placeholder {
-                /* IE 10+ */
-                color: rgb(255, 255, 255);
-                margin-left: 10px;
-            }
-
-            input::-moz-placeholder {
-                /* Firefox 18- */
-                color: rgb(255, 255, 255);
-                font-weight: lighter;
-                font-size: small;
-                margin-left: 10px;
-            }
-
-
-
-
-        }
-
-        .chat-list-item{
-            // height: 70px;
+        .chat-list {
+            // height: 80%;
             // width: 100%;
-            padding: 0px 20px;
-            margin-bottom: 10px ;
-            
+            // background-color: rgba(105, 235, 235, 0.404);
+            backdrop-filter: blur(5px);
+            border-radius: 5px;
 
-            
-            .item-content{
-                border-radius: 5px;
-                padding: 10px;
-                background-color:  rgba(19, 39, 39, 0.658);
-                backdrop-filter: blur(10px);
-                box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-                // background-color: #427da27a;
-                // box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
-                // box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-                // border-bottom: 2px solid brown;
+            .logo {
+                @include center();
+                margin-top: 25px;
 
-                .chat-item-username{
-                    // font-weight: 700;
-                    font-size: 14px;
-                    
+                .rounded-circle {
+                    background-color: rgba(116, 116, 116, 0.39);
+                    backdrop-filter: blur(5px);
+                    background-size: cover;
+                    border: 1px solid #999999;
+                }
+            }
+
+            .name-title {
+                @include center();
+                margin: 5px
+            }
+
+            .search-chat {
+                padding: 20px;
+
+                input {
+                    width: 100%;
+                    height: 40px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: rgba(19, 39, 39, 0.658);
+                    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+
+                    .input:focus {
+                        border: 3px solid red;
+                    }
+
                 }
 
-                .chat-details{
+                input::-webkit-input-placeholder {
+                    /* Chrome/Opera/Safari */
+                    color: rgb(114, 114, 114);
+                    margin-left: 10px;
+                }
+
+                input::-moz-placeholder {
+                    /* Firefox 19+ */
+                    color: rgb(255, 0, 0);
+                    margin-left: 10px;
+                }
+
+                input::-ms-input-placeholder {
+                    /* IE 10+ */
+                    color: rgb(255, 255, 255);
+                    margin-left: 10px;
+                }
+
+                input::-moz-placeholder {
+                    /* Firefox 18- */
+                    color: rgb(255, 255, 255);
                     font-weight: lighter;
                     font-size: small;
-                    align-items: center;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    display: flex;
-                    align-items: center;
+                    margin-left: 10px;
                 }
 
-                .date-time{
-                    font-weight: lighter;
-                    font-size: x-small;
-                    
+
+
+
+            }
+
+            .chat-list-item {
+                width: 98%;
+                margin-bottom: 5px;
+                cursor: pointer;
+
+
+                .item-content {
+                    border-radius: 5px;
+                    padding: 5px;
+                    background-color: rgba(19, 39, 39, 0.658);
+                    backdrop-filter: blur(10px);
+                    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+                    // background-color: #427da27a;
+                    // box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+                    // box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+                    // border-bottom: 2px solid brown;
+
+                    .chat-item-username {
+                        // font-weight: 700;
+                        font-size: 14px;
+
+                    }
+
+                    .chat-details {
+                        font-weight: lighter;
+                        font-size: small;
+                        align-items: center;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        display: flex;
+                        align-items: center;
+                        color: #c9c9c9;
+
+                    }
+
+                    .date-time {
+                        display: flex;
+                        font-weight: lighter;
+                        font-size: x-small;
+                        direction: rtl;
+                        color: #999999;
+                    }
                 }
+            }
+
+
+            .infinite-scroll {
+                scrollbar-color: rgb(52, 88, 87) rgb(27, 60, 78);
+
+            }
+
+            .infinite-scroll::-webkit-scrollbar {
+                width: 10em;
+                scrollbar-width: thin;
+            }
+
+            .infinite-scroll::-webkit-scrollbar-track {
+                box-shadow: inset 0 0 6px rgba(175, 15, 15, 0.3);
+            }
+
+            .infinite-scroll::-webkit-scrollbar-thumb {
+                background-color: rgb(139, 38, 38);
+                outline: 1px solid rgb(11, 88, 165);
             }
         }
 
-
-
-
+        .chat-window {
+            margin-left: 10px;
+            border-radius: 5px;
+            .header {
+                background-color: red;
+                height: 50px;
+                width: 100%;
+                // display: flex;
+                // align-items: center;
+            }
+        }
     }
-
 
 
 }

@@ -2,7 +2,7 @@ import React from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
 import "./Login.scss";
 import Banner from "./../../Assest/Image/banner.jpg";
-import DarkBanner from './../../Assest/Image/dark-banner.jpg'
+import DarkBanner from "./../../Assest/Image/dark-banner.jpg";
 import Logo from "./../../Assest/Image/Logo.png";
 export const Login = () => {
   return (
