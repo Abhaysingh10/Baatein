@@ -87,19 +87,24 @@ const Chatpage = () => {
                 </InfiniteScroll>
               </div>
             </Col>
-            <Col lg={8} style={{ backgroundColor: " rgba(19, 39, 39, 0.658)", backdropFilter: "blur(5px)" }}>
+            <Col lg={8} style={{ backgroundColor: " ", backdropFilter: "blur(5px)" }}>
               <div className="chat-window">
-                <Container className="header">
-                  <Row style={{height:"100%", display:"flex", alignItems:"center"}}>
-                    <Col md={10} lg={10} className="chat-window-header" style={{ backgroundColor: "brown" }}>
+                <div className="header">
+                  <Row className="header-row">
+                    <Col md={10} lg={10} className="chat-window-header" >
                       Vally
                     </Col>
-                    <Col md={2} lg={2} style={{ backgroundColor: "blue",display:"flex", alignItems:"flex-end"}}>
+                    <Col className="option-icon" md={2} lg={2}>
                       <i class="bi bi-three-dots-vertical"></i>
                     </Col>
+                    {/* <hr/> */}
                   </Row>
-                </Container>
-              </div>
+                  {/* <Row><hr/></Row> */}
+                </div>
+                  <Row className="chat-box">
+asdf
+                  </Row>
+              </div>  
             </Col>
           </Row>
         </Container>

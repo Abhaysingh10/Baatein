@@ -17,7 +17,6 @@
 
     .container {
         margin: auto;
-
         .chat-list {
             // height: 80%;
             // width: 100%;
@@ -160,12 +159,30 @@
         .chat-window {
             margin-left: 10px;
             border-radius: 5px;
+            height: 100%;
             .header {
-                background-color: red;
-                height: 50px;
+                height: 15%;
                 width: 100%;
-                // display: flex;
-                // align-items: center;
+                border-radius: 5px;
+         
+                .header-row {
+                    padding: 10px;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    border:3px solid rgb(23, 66, 82);
+                    border-radius: 15px;
+                    .option-icon {
+                        direction: rtl;
+                    }
+                }
+            }
+            .chat-box{
+                height: 85%;
+                border:3px solid rgb(23, 66, 82);
+                border-radius: 15px;
+                margin-top: 10px;
+                padding: 20px;
             }
         }
     }
