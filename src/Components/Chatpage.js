@@ -25,16 +25,6 @@ const Chatpage = () => {
     { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
     { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
     { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
   ]);
 
   return (
@@ -57,7 +47,7 @@ const Chatpage = () => {
                 </Col>
               </Row>
               <div className="infinite-scroll">
-                <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"}>
+                <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{scrollbarWidth:"none"}}>
                   {data.map((ele, i) => {
                     return (
                       <>
@@ -91,20 +81,63 @@ const Chatpage = () => {
               <div className="chat-window">
                 <div className="header">
                   <Row className="header-row">
-                    <Col md={10} lg={10} className="chat-window-header" >
+                    <Col md={10} lg={10} className="chat-window-header">
                       Vally
                     </Col>
                     <Col className="option-icon" md={2} lg={2}>
-                      <i class="bi bi-three-dots-vertical"></i>
+                      <i className="bi bi-three-dots-vertical mx-4"></i>
+                      <i className="bi bi-camera-video"></i>
                     </Col>
-                    {/* <hr/> */}
                   </Row>
-                  {/* <Row><hr/></Row> */}
                 </div>
-                  <Row className="chat-box">
-asdf
-                  </Row>
-              </div>  
+                <Container>
+                  <InfiniteScroll className="infinte-scroll" dataLength={data?.length} height={"calc(100vh - 230px)"} style={{ scrollbarWidth:"none", scrollbarColor: "rgb(52, 88, 87) rgb(27, 60, 78)" }}>
+                    <Row className="chat-box" style={{ backgroundColor: "" }}>
+                      <div className="message-received">
+                        <span>
+                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia quibusdam veritatis libero inventore beatae impedit sapiente delectus deserunt doloribus corrupti,
+                          laboriosam, obcaecati, deleniti accusantium repellendus eligendi reprehenderit. Praesentium, tenetur provident.
+                        </span>
+                      </div>
+                      <div className="message-received">
+                        <span>there ?</span>
+                      </div>
+                      <div className="message-sent">
+                        <span>Hi when can we meet ?</span>
+                      </div>
+                      <div className="message-received">
+                        <span>CCD at 3pm ?</span>
+                      </div>
+                      <div className="message-sent">
+                        <span>Done</span>
+                      </div>
+                      <div className="message-received">
+                        <span>See you then !</span>
+                      </div>
+                      <div className="message-sent">
+                        <span>Done</span>
+                      </div>
+                      <div className="message-received">
+                        <span>See you then !</span>
+                      </div>
+                      <div className="message-sent">
+                        <span>
+                          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime obcaecati fugit sit natus at vero quia illum tempore odio exercitationem modi, doloribus veritatis nulla quam
+                          quisquam sequi ullam molestiae soluta?
+                        </span>
+                      </div>
+                      <div className="message-received">
+                        <span>See you then !</span>
+                      </div>
+                      
+                    </Row>
+                  </InfiniteScroll>
+                </Container>
+                <Row className="message-box" style={{ backgroundColor: "" }}>
+                  <Col lg={11}><input className="ml-auto" />{" "}</Col>
+                  <Col lg={1} ><i class="bi bi-send"></i></Col>
+                </Row>
+              </div>
             </Col>
           </Row>
         </Container>
