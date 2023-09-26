@@ -47,8 +47,8 @@ function App() {
             Dark
           </Col>
         </div>*/}
-      {/* <Login /> */}
-      <Chatpage/>
+      <Login />
+      {/* <Chatpage/> */}
       {/* <Content>This is content.</Content> */}
 
       {/* </div>
