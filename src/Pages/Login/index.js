@@ -11,9 +11,9 @@ export const Login = () => {
     setRegisterEnabled(true);
   };
 
-  const enableLogin = () => { 
-    setRegisterEnabled(false)
-   }
+  const enableLogin = () => {
+    setRegisterEnabled(false);
+  };
 
   return (
     <div className="main">
@@ -33,12 +33,25 @@ export const Login = () => {
                 <i class="bi bi-key"></i>
                 <input className="input-field" type="text" placeholder="Password" />
               </div>
+
+              <div class=" position-relative d-inline-flex align-items-center">
+                <input class="" formControlName="textInput" type="text" />
+                <i
+                  class="bi bi-x-circle position-absolute"
+                  style={{
+                    right: "10px",
+                    cursor: "pointer",
+                    zIndex: "100",
+                  }}
+                ></i>
+              </div>
+
               <div>
                 <div className="submit-row" style={{}}>
                   <Row>
                     <Col className="register-forgot-parent" md={8} style={{}}>
-                      <span className="register-text" onClick={ registerEnabled ? enableLogin : enableRegister}>
-                      {registerEnabled ? "Login" : "Register"}
+                      <span className="register-text" onClick={registerEnabled ? enableLogin : enableRegister}>
+                        {registerEnabled ? "Login" : "Register"}
                       </span>
                       <span className="forgot-text">Forgot Password</span>
                     </Col>
@@ -46,9 +59,7 @@ export const Login = () => {
                       <button className="btn btn-primary">{registerEnabled ? "Register" : "Submit"}</button>
                     </Col>
                   </Row>
-                  <Row>
-                    {/* <Col>Google login</Col> */}
-                  </Row> 
+                  <Row>{/* <Col>Google login</Col> */}</Row>
                 </div>
               </div>
               {/* </div> */}

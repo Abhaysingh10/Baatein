@@ -7,9 +7,11 @@ import React, { useState } from "react";
 import Sidebar from "./Components/Sidebar";
 import Layout, { Content, Footer, Header } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
-import { SmileOutlined, CaretLeftOutlined, CaretRightOutlined } from "@ant-design/icons";
+import { SmileOutlined, CaretLeftOutlined, CaretRightOutlined, RobotFilled } from "@ant-design/icons";
 import SubMenu from "antd/es/menu/SubMenu";
 import Chatpage from "./Components/Chatpage";
+import { HashRouter, Routes, Route } from "react-router-dom";
+import { DeletedFreelancer } from "./Components/DeletedFreelancer";
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -47,7 +49,7 @@ function App() {
             Dark
           </Col>
         </div>*/}
-      <Login />
+      {/* <Login /> */}
       {/* <Chatpage/> */}
       {/* <Content>This is content.</Content> */}
 
@@ -82,6 +84,20 @@ function App() {
         </Layout>
         <Footer>Footer</Footer>
       </Layout> */}
+
+      <HashRouter>
+        <Routes>
+        <Route path='/' element={<Login/>}/>
+          <Route path='freelancers'>
+            <Route index element={<DeletedFreelancer/>} />
+            <Route path="notify-freelancer" element={<Chatpage/>}/>
+            <Route path="approve-freelancer" element={<Sidebar/>}/>
+            <Route path="deleted-freelancer" element={<DeletedFreelancer/>}/>
+          </Route>
+        </Routes>
+      </HashRouter>
+
+
     </Provider>
   );
 }
