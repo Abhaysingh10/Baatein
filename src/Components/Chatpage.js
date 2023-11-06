@@ -4,10 +4,11 @@ import { Col, Container, Row } from "react-bootstrap";
 import Logo from "./../Assest/Image/man.png";
 import User from "./../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
-
+import io from 'socket.io-client'
+const socket = io('http://localhost:3000') 
 const Chatpage = () => {
   const [data, setData] = useState([
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
+    { id: 1, name: "Vally", chatDetails: "", dsateTime: "Today" },
     { id: 2, name: "Ludvig", chatDetails: "", dateTime: "Today" },
     { id: 3, name: "Krishnah", chatDetails: "", dateTime: "Yesterday" },
     { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
@@ -26,6 +27,18 @@ const Chatpage = () => {
     { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
     { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
   ]);
+
+
+  React.useEffect(() => {
+  console.log("effect called")
+    socket.on('connect', (message)=>{
+      alert('connected')
+    })
+    return () => {
+      
+    }
+  }, [])
+  
 
   return (
     <>

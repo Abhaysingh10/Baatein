@@ -87,17 +87,15 @@ function App() {
 
       <HashRouter>
         <Routes>
-        <Route path='/' element={<Login/>}/>
+        {/* <Route path='/' element={<Login/>}/> */}
+        <Route path="chat" element={<Chatpage/>}/>
           <Route path='freelancers'>
             <Route index element={<DeletedFreelancer/>} />
-            <Route path="notify-freelancer" element={<Chatpage/>}/>
             <Route path="approve-freelancer" element={<Sidebar/>}/>
             <Route path="deleted-freelancer" element={<DeletedFreelancer/>}/>
           </Route>
         </Routes>
       </HashRouter>
-
-
     </Provider>
   );
 }

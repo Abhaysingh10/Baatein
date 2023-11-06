@@ -34,7 +34,7 @@ export const Login = () => {
                 <input className="input-field" type="text" placeholder="Password" />
               </div>
 
-              <div class=" position-relative d-inline-flex align-items-center">
+              {/* <div class=" position-relative d-inline-flex align-items-center">
                 <input class="" formControlName="textInput" type="text" />
                 <i
                   class="bi bi-x-circle position-absolute"
@@ -44,7 +44,7 @@ export const Login = () => {
                     zIndex: "100",
                   }}
                 ></i>
-              </div>
+              </div> */}
 
               <div>
                 <div className="submit-row" style={{}}>
