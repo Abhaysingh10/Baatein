@@ -5,40 +5,51 @@ import Logo from "./../Assest/Image/man.png";
 import User from "./../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
 import io from 'socket.io-client'
+import { Controller, useForm } from "react-hook-form";
 const socket = io('http://localhost:3000') 
 const Chatpage = () => {
+
+  const [message, setMessage] = useState('')
+  const {
+    control,
+    handleSubmit,
+    getValues,
+    formState: { errors },
+  } = useForm({})
   const [data, setData] = useState([
-    { id: 1, name: "Vally", chatDetails: "", dsateTime: "Today" },
-    { id: 2, name: "Ludvig", chatDetails: "", dateTime: "Today" },
-    { id: 3, name: "Krishnah", chatDetails: "", dateTime: "Yesterday" },
-    { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 4, name: "Vivian", chatDetails: "", dateTime: "15/09/2023" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
-    { id: 1, name: "Vally", chatDetails: "", dateTime: "Today" },
+    { id: 1, name: "Vally", chatDetails: "", dsateTime: "Today" }
   ]);
 
+  const senderId = 'unique-sender-id'; // Unique identifier for the sender
+  const receiverId = 'unique-receiver-id'; // Unique identifier for the receiver
+
+  socket.emit('baatein', {senderId, receiverId})
+  const room = `${senderId}-${receiverId}`;
+  const msg = 'Hello, receiver!';
+  socket.emit('msg', { room, msg });
 
   React.useEffect(() => {
-  console.log("effect called")
-    socket.on('connect', (message)=>{
-      alert('connected')
-    })
+    // socket.on('connect', (message)=>{
+    //   alert('connected')
+    // })
     return () => {
-      
+
     }
   }, [])
-  
+
+
+
+  const onChange = () => {
+
+  }
+
+
+  const onMessageSent = () => {
+    // alert(getValues('messageBox'))
+    const msg = 'Hello, receiver!';
+    socket.emit('msg', { room, msg });
+  }
+
 
   return (
     <>
@@ -60,7 +71,7 @@ const Chatpage = () => {
                 </Col>
               </Row>
               <div className="infinite-scroll">
-                <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{scrollbarWidth:"none"}}>
+                <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
                   {data.map((ele, i) => {
                     return (
                       <>
@@ -104,7 +115,7 @@ const Chatpage = () => {
                   </Row>
                 </div>
                 <Container>
-                  <InfiniteScroll className="infinte-scroll" dataLength={data?.length} height={"calc(100vh - 230px)"} style={{ scrollbarWidth:"none", scrollbarColor: "rgb(52, 88, 87) rgb(27, 60, 78)" }}>
+                  <InfiniteScroll className="infinte-scroll" dataLength={data?.length} height={"calc(100vh - 230px)"} style={{ scrollbarWidth: "none", scrollbarColor: "rgb(52, 88, 87) rgb(27, 60, 78)" }}>
                     <Row className="chat-box" style={{ backgroundColor: "" }}>
                       <div className="message-received">
                         <span>
@@ -142,13 +153,25 @@ const Chatpage = () => {
                       <div className="message-received">
                         <span>See you then !</span>
                       </div>
-                      
+
                     </Row>
                   </InfiniteScroll>
                 </Container>
                 <Row className="message-box" style={{ backgroundColor: "" }}>
-                  <Col lg={11}><input className="ml-auto" />{" "}</Col>
-                  <Col lg={1} ><i class="bi bi-send"></i></Col>
+                  <Col lg={11}>
+                    <Controller
+                      control={control}
+                      name="messageBox"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          type="text"
+                          placeholder="Type your message here !"
+                          onChange={onChange}
+                        />
+                      )}
+                    />
+                  </Col>
+                  <Col lg={1} ><i class="bi bi-send" style={{ cursor: "pointer" }} onClick={onMessageSent}></i></Col>
                 </Row>
               </div>
             </Col>
