@@ -6,10 +6,13 @@ import User from "./../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
 import io from 'socket.io-client'
 import { Controller, useForm } from "react-hook-form";
-const socket = io('http://localhost:3000') 
+import { useSelector } from "react-redux";
+const socket = io('http://localhost:3000')
 const Chatpage = () => {
 
   const [message, setMessage] = useState('')
+  const { userName } = useSelector(state => state.login)
+  const [onlineUsers, setOnlineUsers] = useState([])
   const {
     control,
     handleSubmit,
@@ -20,35 +23,33 @@ const Chatpage = () => {
     { id: 1, name: "Vally", chatDetails: "", dsateTime: "Today" }
   ]);
 
-  const senderId = 'unique-sender-id'; // Unique identifier for the sender
-  const receiverId = 'unique-receiver-id'; // Unique identifier for the receiver
 
-  socket.emit('baatein', {senderId, receiverId})
-  const room = `${senderId}-${receiverId}`;
-  const msg = 'Hello, receiver!';
-  socket.emit('msg', { room, msg });
+  socket.on('online', (data) => {
+    let newArray = [];
+    newArray = data?.filter(obj=> obj?.user !== userName)
+    setOnlineUsers(newArray)
+    console.log("Online users", data)
+  })
 
   React.useEffect(() => {
-    // socket.on('connect', (message)=>{
-    //   alert('connected')
-    // })
-    return () => {
-
-    }
+    socket.emit('abhay', { "name": userName })
   }, [])
 
-
-
-  const onChange = () => {
-
-  }
+  const onChange = () => {}
 
 
   const onMessageSent = () => {
     // alert(getValues('messageBox'))
-    const msg = 'Hello, receiver!';
-    socket.emit('msg', { room, msg });
+    // const msg = 'Hello, receiver!';
+    // socket.emit('msg', { room, msg });
   }
+
+  window.addEventListener('unload', function () {
+    socket.disconnect()
+  });
+  window.addEventListener('beforeunload', function (e) {
+    socket.disconnect()
+  });
 
 
   return (
@@ -63,16 +64,16 @@ const Chatpage = () => {
                 </Col>
               </Row>
               <Row>
-                <Col className="name-title">Abhay Singh</Col>
+                <Col className="name-title">{userName}</Col>
               </Row>
               <Row>
                 <Col className="search-chat">
-                  <input type="text" placeholder="    Search chat " />
+                  <input type="text" placeholder="Search chat " />
                 </Col>
               </Row>
               <div className="infinite-scroll">
                 <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
-                  {data.map((ele, i) => {
+                  {onlineUsers.map((ele, i) => {
                     return (
                       <>
                         <Col className="chat-list-item">
@@ -81,16 +82,16 @@ const Chatpage = () => {
                               <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
                                 <img src={User} class="rounded-circle" alt="..." />
                               </Col>
-                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }}>
+                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "red" }}>
                                 <Row style={{ backgroundColor: "" }}>
-                                  <span className="chat-item-username">{ele?.name}</span>
+                                  <span className="chat-item-username">{ele?.user}</span>
                                 </Row>
                                 <Row style={{ backgroundColor: "" }}>
                                   <span className="chat-details">Lorem ipsum dolor sit amet consectetur adipisicing</span>
                                 </Row>
                               </Col>
                               <Col xs={3} sm={2} md={2} lg={2} style={{ backgroundColor: "" }}>
-                                <span className="date-time">{ele.dateTime}</span>
+                                <span className="date-time">ele.dateTime</span>
                               </Col>
                             </Row>
                           </div>
@@ -106,7 +107,7 @@ const Chatpage = () => {
                 <div className="header">
                   <Row className="header-row">
                     <Col md={10} lg={10} className="chat-window-header">
-                      Vally
+                      {userName}
                     </Col>
                     <Col className="option-icon" md={2} lg={2}>
                       <i className="bi bi-three-dots-vertical mx-4"></i>

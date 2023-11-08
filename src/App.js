@@ -12,6 +12,7 @@ import SubMenu from "antd/es/menu/SubMenu";
 import Chatpage from "./Components/Chatpage";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import { DeletedFreelancer } from "./Components/DeletedFreelancer";
+import WelcomPage from "./Components/WelcomPage";
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -88,7 +89,8 @@ function App() {
       <HashRouter>
         <Routes>
         {/* <Route path='/' element={<Login/>}/> */}
-        <Route path="chat" element={<Chatpage/>}/>
+        <Route path="/" element={<Login/>}/>
+        <Route path="/chat" element={<Chatpage/>}/>
           <Route path='freelancers'>
             <Route index element={<DeletedFreelancer/>} />
             <Route path="approve-freelancer" element={<Sidebar/>}/>
