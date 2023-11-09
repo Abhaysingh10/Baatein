@@ -8,15 +8,20 @@ import io from 'socket.io-client'
 import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 const socket = io('http://localhost:3000')
+// var socket;
 const Chatpage = () => {
 
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState()
+  const [selectedSocketId, setselectedSocketId] = useState()
   const { userName } = useSelector(state => state.login)
   const [onlineUsers, setOnlineUsers] = useState([])
+  const [messageLog, setMessageLog] = useState([])
+
   const {
     control,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm({})
   const [data, setData] = useState([
@@ -24,11 +29,17 @@ const Chatpage = () => {
   ]);
 
 
+  
+
   socket.on('online', (data) => {
     let newArray = [];
     newArray = data?.filter(obj=> obj?.user !== userName)
     setOnlineUsers(newArray)
-    console.log("Online users", data)
+  })
+
+  socket.on('private-message', ({message})=>{
+    console.log("received message", message)
+    setMessageLog(message)
   })
 
   React.useEffect(() => {
@@ -38,11 +49,26 @@ const Chatpage = () => {
   const onChange = () => {}
 
 
-  const onMessageSent = () => {
-    // alert(getValues('messageBox'))
+  const onMessageSent = (name) => {
+
+    socket.emit('private-message', {socketId:selectedSocketId?.socketId, message:{ sender: userName, recipient:selectedSocketId?.user , msgBody: getValues('messageBox'), msgDateTime: new Date() }})
+    setValue('messageBox', '')
     // const msg = 'Hello, receiver!';
     // socket.emit('msg', { room, msg });
   }
+
+  React.useEffect(() => {
+    console.log(selectedSocketId)
+  
+    return () => {
+      
+    }
+  }, [selectedSocketId])
+  
+  const selectSocketId = (ele) => { 
+    setselectedSocketId(ele)
+    console.log("ele",ele)
+   }
 
   window.addEventListener('unload', function () {
     socket.disconnect()
@@ -74,6 +100,7 @@ const Chatpage = () => {
               <div className="infinite-scroll">
                 <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
                   {onlineUsers.map((ele, i) => {
+                    console.log(ele)
                     return (
                       <>
                         <Col className="chat-list-item">
@@ -82,12 +109,12 @@ const Chatpage = () => {
                               <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
                                 <img src={User} class="rounded-circle" alt="..." />
                               </Col>
-                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "red" }}>
+                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "red" }} onClick={()=>selectSocketId(ele)}>
                                 <Row style={{ backgroundColor: "" }}>
                                   <span className="chat-item-username">{ele?.user}</span>
                                 </Row>
                                 <Row style={{ backgroundColor: "" }}>
-                                  <span className="chat-details">Lorem ipsum dolor sit amet consectetur adipisicing</span>
+                                  <span className="chat-details">{ele?.socketId}</span>
                                 </Row>
                               </Col>
                               <Col xs={3} sm={2} md={2} lg={2} style={{ backgroundColor: "" }}>
@@ -107,7 +134,7 @@ const Chatpage = () => {
                 <div className="header">
                   <Row className="header-row">
                     <Col md={10} lg={10} className="chat-window-header">
-                      {userName}
+                      {selectedSocketId?.user}
                     </Col>
                     <Col className="option-icon" md={2} lg={2}>
                       <i className="bi bi-three-dots-vertical mx-4"></i>
@@ -118,43 +145,21 @@ const Chatpage = () => {
                 <Container>
                   <InfiniteScroll className="infinte-scroll" dataLength={data?.length} height={"calc(100vh - 230px)"} style={{ scrollbarWidth: "none", scrollbarColor: "rgb(52, 88, 87) rgb(27, 60, 78)" }}>
                     <Row className="chat-box" style={{ backgroundColor: "" }}>
-                      <div className="message-received">
-                        <span>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Officia quibusdam veritatis libero inventore beatae impedit sapiente delectus deserunt doloribus corrupti,
-                          laboriosam, obcaecati, deleniti accusantium repellendus eligendi reprehenderit. Praesentium, tenetur provident.
-                        </span>
-                      </div>
-                      <div className="message-received">
-                        <span>there ?</span>
-                      </div>
-                      <div className="message-sent">
-                        <span>Hi when can we meet ?</span>
-                      </div>
-                      <div className="message-received">
-                        <span>CCD at 3pm ?</span>
-                      </div>
-                      <div className="message-sent">
-                        <span>Done</span>
-                      </div>
-                      <div className="message-received">
-                        <span>See you then !</span>
-                      </div>
-                      <div className="message-sent">
-                        <span>Done</span>
-                      </div>
-                      <div className="message-received">
-                        <span>See you then !</span>
-                      </div>
-                      <div className="message-sent">
-                        <span>
-                          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Maxime obcaecati fugit sit natus at vero quia illum tempore odio exercitationem modi, doloribus veritatis nulla quam
-                          quisquam sequi ullam molestiae soluta?
-                        </span>
-                      </div>
-                      <div className="message-received">
-                        <span>See you then !</span>
-                      </div>
-
+                      {messageLog?.map((ele)=>{
+                        if (ele?.sender === userName) {
+                          return <div className="message-sent">
+                           <span>{(ele?.msgBody).trim()}</span>
+                         </div>
+                         }
+                         else{
+                          return <div className="message-received">
+                          <span>
+                            {(ele?.msgBody).trim()}
+                          </span>
+                        </div>
+                         }
+                      })}
+                      
                     </Row>
                   </InfiniteScroll>
                 </Container>
@@ -168,6 +173,7 @@ const Chatpage = () => {
                           type="text"
                           placeholder="Type your message here !"
                           onChange={onChange}
+                          value={value}
                         />
                       )}
                     />

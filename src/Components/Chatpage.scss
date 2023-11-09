@@ -10,7 +10,8 @@
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    background-image: url('./../Assest/Image/chat-bg.jpg');
+    background-color: rgb(71, 49, 19);
+    // background-image: url('./../Assest/Image/chat-bg.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     color: aliceblue;
@@ -186,8 +187,8 @@
                 // background-color: lightblue;
                 .message-received {
                     margin-bottom: 10px;
-                    display: flex;
-
+                    // display: flex;
+                    // height: fit-content;
                     span {
                         background-color: paleturquoise;
                         font-size: small;
@@ -202,9 +203,9 @@
                 .message-sent {
                     width: 100%;
                     margin-bottom: 10px;
-                    display: flex;
+                    // display: flex;
                     direction: rtl;
-
+                    // height: fit-content;
                     span {
                         font-size: small;
                         max-width: 50%;
