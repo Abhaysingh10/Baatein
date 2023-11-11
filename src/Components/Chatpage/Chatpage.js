@@ -1,14 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./Chatpage.scss";
+import "./../Chatpage/Chatpage.scss";
 import { Col, Container, Row } from "react-bootstrap";
-import Logo from "./../Assest/Image/man.png";
-import User from "./../Assest/Image/insta.png";
+import Logo from "./../../Assest/Image/man.png";
+import User from "./../../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import socket from "./Socket.js";
-import ScrollToBottom from "react-scroll-to-bottom";
-import PerfectScrollbar from "react-perfect-scrollbar";
+import socket from "../Socket.js/index.js";
 import 'react-perfect-scrollbar/dist/css/styles.css';
 const Chatpage = () => {
 
@@ -81,6 +79,12 @@ const Chatpage = () => {
     }
   }, [selectedSocketId])
 
+  React.useEffect(() => {
+    console.log(userName)
+    return () => {
+    }
+  }, [userName])
+
   const selectSocketId = (ele) => {
     setselectedSocketId(ele)
     console.log("ele", ele)
@@ -125,7 +129,7 @@ const Chatpage = () => {
                           <div className="item-content">
                             <Row>
                               <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
-                                <img src={User} class="rounded-circle" alt="..." />
+                                <img src={User} className="rounded-circle" alt="..." />
                               </Col>
                               <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} onClick={() => selectSocketId(ele)}>
                                 <Row style={{ backgroundColor: "" }}>
@@ -206,7 +210,7 @@ const Chatpage = () => {
                     />
                   </Col>
 
-                  <Col lg={1} ><i class="bi bi-send" style={{ cursor: "pointer" }} onClick={onMessageSent} ></i></Col>
+                  <Col lg={1} ><i className="bi bi-send" style={{ cursor: "pointer" }} onClick={onMessageSent} ></i></Col>
 
                 </Row>
               </div>

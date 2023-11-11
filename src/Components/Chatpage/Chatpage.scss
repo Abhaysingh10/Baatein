@@ -11,7 +11,7 @@
     height: 100vh;
     width: 100vw;
     // background-color: rgb(71, 49, 19);
-    background-image: url('./../Assest/Image/chat-bg.jpg');
+    background-image: url('./../../Assest/Image/chat-bg.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     color: aliceblue;
@@ -36,7 +36,8 @@
 
             .name-title {
                 @include center();
-                // margin: 5px
+                margin: 5px;
+                color: white
             }
 
             .search-chat {

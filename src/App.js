@@ -1,18 +1,13 @@
-import { Login } from "./Pages/Login";
+// import { Login } from "./../";
 import { Provider } from "react-redux";
 import { store } from "./Store";
 import "./style.scss";
-import { Card, Col } from "react-bootstrap";
 import React, { useState } from "react";
-import Sidebar from "./Components/Sidebar";
-import Layout, { Content, Footer, Header } from "antd/es/layout/layout";
-import Sider from "antd/es/layout/Sider";
-import { SmileOutlined, CaretLeftOutlined, CaretRightOutlined, RobotFilled } from "@ant-design/icons";
-import SubMenu from "antd/es/menu/SubMenu";
-import Chatpage from "./Components/Chatpage";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import { DeletedFreelancer } from "./Components/DeletedFreelancer";
-import WelcomPage from "./Components/WelcomPage";
+import Chatpage from './Components/Chatpage/Chatpage'
+import Sidebar from './Components/Sidebar/Sidebar'
+import { Login } from "./Components/Login";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -31,6 +26,7 @@ function App() {
 
   return (
     <Provider store={store}>
+      
       {/* <Layout> */}
       {/* <Header> */}
       {/* <Sidebar /> */}
@@ -43,7 +39,7 @@ function App() {
           </Col>
           <Col md="auto">
             <div className="theme-switch form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={handleThemeChange} />
+              <input className="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" onChange={handleThemeChange} />
             </div>
           </Col>
           <Col xs lg="auto">
@@ -92,9 +88,9 @@ function App() {
         <Route path="/" element={<Login/>}/>
         <Route path="/chat" element={<Chatpage/>}/>
           <Route path='freelancers'>
-            <Route index element={<DeletedFreelancer/>} />
+            {/* <Route index element={<Dele/>} /> */}
             <Route path="approve-freelancer" element={<Sidebar/>}/>
-            <Route path="deleted-freelancer" element={<DeletedFreelancer/>}/>
+            {/* <Route path="deleted-freelancer" element={<DeletedFreelancer/>}/> */}
           </Route>
         </Routes>
       </HashRouter>

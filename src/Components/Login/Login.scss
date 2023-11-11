@@ -50,17 +50,27 @@ $bg-dark: #000;
                 // margin: 6px;
                 font-size: small;
                 text-indent: 30px;
+                animation: normal;
+
             }
 
             .input-icons i {
                 position: absolute;
                 margin-top: 10px;
                 margin-left: 10px;
+                animation: normal;
+
             }
 
             .input-icons {
                 margin-bottom: 20px;
                 width: 100%;
+                animation: normal;
+                .error-msg{
+                    font-family: 'Courier New', Courier, monospace;
+                    color: rgba(110, 0, 0, 0.993);
+                    margin-top: 5px;
+                }
             }
 
             .icon {
