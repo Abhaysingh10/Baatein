@@ -8,7 +8,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import socket from "./Socket.js";
 import ScrollToBottom from "react-scroll-to-bottom";
-// var socket;
+import PerfectScrollbar from "react-perfect-scrollbar";
+import 'react-perfect-scrollbar/dist/css/styles.css';
 const Chatpage = () => {
 
   const [message, setMessage] = useState()
@@ -33,43 +34,44 @@ const Chatpage = () => {
     if (!socket.connected) {
       socket.connect()
     }
-  
+
     return () => {
       socket.disconnect()
     }
   }, [])
-  
-  
+
+
 
   socket.on('online', (data) => {
     let newArray = [];
-    newArray = data?.filter(obj=> obj?.user !== userName)
+    newArray = data?.filter(obj => obj?.user !== userName)
     setOnlineUsers(newArray)
   })
 
-  socket.on('private-message', ({message})=>{
-    console.log("received message", message)
+  socket.on('private-message', ({ message }) => {
+    // console.log("received message", message)
     setMessageLog(message)
   })
 
-  React.useEffect(() => { 
+  React.useEffect(() => {
     socket.emit('abhay', { "name": userName })
   }, [])
 
   useEffect(() => {
-    // Scroll to the bottom when data changes
-    // alert('recevied')
-    const scrollContainer = scrollContainerRef.current;
-    scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    console.log("scrollContainerRef.current", scrollContainerRef.current.scrollTop)
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+      // scrollContainerRef.current.scrollIntoView(true);
+    }
   }, [messageLog]);
-  
 
-  const onChange = () => {}
+
+  const onChange = () => { }
 
 
   const onMessageSent = (name) => {
 
-    socket.emit('private-message', {socketId:selectedSocketId?.socketId, message:{ sender: userName, recipient:selectedSocketId?.user , msgBody: getValues('messageBox'), msgDateTime: new Date() }})
+    socket.emit('private-message', { socketId: selectedSocketId?.socketId, message: { sender: userName, recipient: selectedSocketId?.user, msgBody: getValues('messageBox'), msgDateTime: new Date() } })
     setValue('messageBox', '')
   }
 
@@ -78,12 +80,12 @@ const Chatpage = () => {
     return () => {
     }
   }, [selectedSocketId])
-  
-  const selectSocketId = (ele) => { 
+
+  const selectSocketId = (ele) => {
     setselectedSocketId(ele)
-    console.log("ele",ele)
-   }
- 
+    console.log("ele", ele)
+  }
+
   window.addEventListener('unload', function () {
     console.log("unload")
     socket.disconnect()
@@ -97,8 +99,8 @@ const Chatpage = () => {
   return (
     <>
       <div className="main">
-        <Container className="container" key={1}>
-          <Row className="my-4" key={1}>
+        <Container className="container" key={1} >
+          <Row className="my-2" key={1}>
             <Col lg={4} className="chat-list ">
               <Row>
                 <Col className="logo">
@@ -106,7 +108,7 @@ const Chatpage = () => {
                 </Col>
               </Row>
               <Row>
-                <Col className="name-title">{userName}</Col>  
+                <Col className="name-title">{userName}</Col>
               </Row>
               <Row>
                 <Col className="search-chat">
@@ -114,7 +116,7 @@ const Chatpage = () => {
                 </Col>
               </Row>
               <div className="infinite-scroll">
-                <InfiniteScroll  dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
+                <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
                   {onlineUsers.map((ele, i) => {
                     console.log(ele)
                     return (
@@ -125,7 +127,7 @@ const Chatpage = () => {
                               <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
                                 <img src={User} class="rounded-circle" alt="..." />
                               </Col>
-                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} onClick={()=>selectSocketId(ele)}>
+                              <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} onClick={() => selectSocketId(ele)}>
                                 <Row style={{ backgroundColor: "" }}>
                                   <span className="chat-item-username">{ele?.user}</span>
                                 </Row>
@@ -145,7 +147,7 @@ const Chatpage = () => {
                 </InfiniteScroll>
               </div>
             </Col>
-            <Col lg={8} style={{ backgroundColor: " ", backdropFilter: "blur(5px)" }}>
+            <Col lg={8}>
               <div className="chat-window">
                 <div className="header">
                   <Row className="header-row">
@@ -158,62 +160,54 @@ const Chatpage = () => {
                     </Col>
                   </Row>
                 </div>
-                <Container>
-                  <InfiniteScroll 
-                  inverse={false} 
-                  ref={scrollContainerRef}  
-                  className="infinte-scroll" 
-                  dataLength={data?.length} 
-                  height={"calc(100vh - 230px)"} 
-                  style={{ scrollbarWidth: "none", scrollbarColor: "rgb(52, 88, 87) rgb(27, 60, 78)", 
-                }}>
-                    
-                     <ScrollToBottom>
-                    <Row className="chat-box" style={{ backgroundColor: " ", overflow:"" }}>
-                      {messageLog?.map((ele)=>{
+                <Container ref={scrollContainerRef} style={{ overflowY: "auto", height: "calc(100vh - 180px)", marginBottom:"5px" }}>
+                  <InfiniteScroll
+                    className="infinte-scroll"
+                    dataLength={data?.length}
+                  >
+
+                    <Row className="chat-box" style={{ backgroundColor: "", overflow: "" }}>
+                      {messageLog?.map((ele) => {
                         if (ele?.sender === userName) {
                           return <div className="message-sent">
-                           <span>{(ele?.msgBody).trim()}</span>
-                         </div>
-                         }
-                         else{
+                            <span>{(ele?.msgBody).trim()}</span>
+                          </div>
+                        }
+                        else {
                           return <div className="message-received">
-                          <span>
-                            {(ele?.msgBody).trim()}
-                          </span>
-                        </div>  
-                         }
+                            <span>
+                              {ele?.msgBody}
+                            </span>
+                          </div>
+                        }
                       })}
-                      
+
                     </Row>
-                  </ScrollToBottom>
                   </InfiniteScroll>
                 </Container>
                 <Row className="message-box" style={{ backgroundColor: "" }}>
-            
-               
-                <Col lg={11}>
-                  <Controller
-                    control={control}
-                    name="messageBox"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <input
-                        type="text"
-                        placeholder="Type your message here !"
-                        onChange={onChange}
-                        value={value}
-                        onKeyDown={(e)=>{
-                          if (e.key === 'Enter') {
-                            console.log("Enter tapped")
-                            onMessageSent()
-                          }
-                        }}
-                      />
-                    )}
-                  />
-                </Col>
-                <Col lg={1} ><i class="bi bi-send"  style={{ cursor: "pointer" }} onClick={onMessageSent} ></i></Col>
-        
+                  <Col lg={11}>
+                    <Controller
+                      control={control}
+                      name="messageBox"
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <input
+                          type="text"
+                          placeholder="Type your message here !"
+                          onChange={onChange}
+                          value={value}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              onMessageSent()
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </Col>
+
+                  <Col lg={1} ><i class="bi bi-send" style={{ cursor: "pointer" }} onClick={onMessageSent} ></i></Col>
+
                 </Row>
               </div>
             </Col>

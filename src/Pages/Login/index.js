@@ -25,6 +25,7 @@ export const Login = () => {
     setRegisterEnabled(false);
   };
   const dispatch = useDispatch()
+
   const handleSubmit = () =>{
     dispatch(setUsername(getValues('username')))
     navigate('/chat')
@@ -56,7 +57,12 @@ export const Login = () => {
                       control={control}
                       name="username"
                       render={({ field: { onChange, onBlur, value } }) => (
-                        <input className="input-field" onChange={onChange} type="text" placeholder="Your username" />
+                        <input className="input-field" onChange={onChange} type="text" placeholder="Your username" onKeyDown={(e)=>{
+                          if (e.key === 'Enter') {
+                            console.log("Enter tapped")
+                            handleSubmit()
+                          }
+                        }} />
                       )}
                     />
               
