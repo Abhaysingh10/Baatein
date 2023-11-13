@@ -48,8 +48,28 @@ export const Login = () => {
       .catch((err) => {
         if (err?.response?.status == 401) {
           toast.error(err?.response?.data);
+          enableRegister();
         }
         dispatch(setLoginLoader(false));
+      });
+  };
+
+  const handleRegister = () => {
+    axios
+      .post("http://localhost:3000/add-user", {
+        params: {
+          first_name: getValues("first_name"),
+          password: getValues("password"),
+        },
+      })
+      .then((data) => {
+        console.log("data",data)
+        if (data?.status ==  204) {
+          toast.error("User already exit !")
+        }
+      })
+      .catch((ex) => {
+        toast.error(ex);
       });
   };
 
@@ -67,54 +87,64 @@ export const Login = () => {
       <Container className="main-container">
         <Row>
           <Col className="login-page-form">
-          <form onSubmit={handleSubmit(onSubmit)}>
-
-            {/* <div> */}
-            <div className="credential-box">
-              <div className="logo">
-                <Image src={Logo}></Image>
-              </div>
-              <div className="input-icons">
-                <i className="bi bi-person"></i>
-                <Controller
-                  control={control}
-                  name="first_name"
-                  rules={{ required: true }}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <input
-                      className="input-field"
-                      onChange={onChange}
-                      type="text"
-                      placeholder="Username"
-                    />
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* <div> */}
+              <div className="credential-box">
+                <div className="logo">
+                  <Image src={Logo}></Image>
+                </div>
+                <div className="input-icons">
+                  <i className="bi bi-person"></i>
+                  <Controller
+                    control={control}
+                    name="first_name"
+                    rules={{ required: true }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <input
+                        className="input-field"
+                        onChange={onChange}
+                        type="text"
+                        placeholder="Username"
+                      />
+                    )}
+                  />
+                  {errors.first_name && (
+                    <div className="error-msg">
+                      <span className="mx-2" role="alert">
+                        First name is required
+                      </span>
+                    </div>
                   )}
-                />
-              {errors.first_name  && <div className="error-msg"><span className="mx-2" role="alert" >First name is required</span></div>}
-              </div>
-              <div className="input-icons">
-                <i className="bi bi-lock"></i>
-                <Controller
-                  control={control}
-                  name="password"
-                  rules={{required:true}}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <input
-                      className="input-field"
-                      onChange={onChange}
-                      type="password"
-                      placeholder="Password"
-                    />
+                </div>
+                <div className="input-icons">
+                  <i className="bi bi-lock"></i>
+                  <Controller
+                    control={control}
+                    name="password"
+                    rules={{ required: true }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <input
+                        className="input-field"
+                        onChange={onChange}
+                        type="password"
+                        placeholder="Password"
+                      />
+                    )}
+                  />
+                  {errors.password && (
+                    <div className="error-msg">
+                      <span className="mx-2" role="alert">
+                        Password is required
+                      </span>
+                    </div>
                   )}
-                />
-              {errors.password  && <div className="error-msg"><span className="mx-2" role="alert" >Password is required</span></div>}
-
-              </div>
-              {/* <div className="input-icons">
+                </div>
+                {/* <div className="input-icons">
                 <i className="bi bi-key"></i>
                 <input className="input-field" type="text" placeholder="Password" />
               </div> */}
 
-              {/* <div className=" position-relative d-inline-flex align-items-center">
+                {/* <div className=" position-relative d-inline-flex align-items-center">
                 <input className="" formControlName="textInput" type="text" />
                 <i
                   className="bi bi-x-circle position-absolute"
@@ -126,25 +156,44 @@ export const Login = () => {
                 ></i>
               </div> */}
 
-              <div className="submit-row" style={{}}>
-                <Row>
-                  {/* <Col className="register-forgot-parent" md={8} style={{}}>
-                      <span className="register-text" onClick={registerEnabled ? enableLogin : enableRegister}>
-                        {registerEnabled ? "Login" : "Register"}
+                <div className="submit-row" style={{}}>
+                  <Row>
+                    <Col className="register-forgot-parent" md={8} style={{}}>
+                      <span className="register-text" onClick={handleRegister}>
+                        Register
                       </span>
                       <span className="forgot-text">Forgot Password</span>
-                    </Col> */}
-                  <Col className="submit-text" md={4}>
-                    <button className="btn btn-primary" onClick={handleSubmit}>
-                      {registerEnabled ? "Register" : "Submit"}
-                    </button>
-                  </Col>
-                </Row>
-                <Row></Row>
+                    </Col>
+                    <Col
+                      className="submit-text"
+                      md={4}
+                      style={{  }}
+                    >
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleSubmit}
+                      >
+                        Submit
+                      </button>
+                    </Col>
+                  </Row>
+                  <Row></Row>
+                </div>
+                {/* </div> */}
               </div>
-              {/* </div> */}
-            </div>
             </form>
+            {/* {registerEnabled && (
+              <Col
+                className="submit-text"
+                md={6}
+                style={{ textAlign: "center" }}
+              >
+                <button className="btn btn-primary" style={{marginTop:"200px"}}
+                 onClick={handleRegister}>
+                  Register
+                </button>
+              </Col> 
+            )} */}
           </Col>
           <Col className="login-page-banner">
             <Image

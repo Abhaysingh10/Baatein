@@ -18,10 +18,21 @@
 
     .container {
         // margin: auto;
+        border-radius: 10px;
         height: 95%;
-        backdrop-filter: blur(15px);
+        // background: rgba(255,255,255,0.5);
+        // background-color: #0093E9;
+        background-image: linear-gradient(160deg, #0094e97c 0%, #80d0c775 100%);
+
+        -webkit-backdrop-filter: blur(1px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+
+
+
         .chat-list {
             border-radius: 5px;
+
             .logo {
                 @include center();
                 // margin-top: 25px;
@@ -50,40 +61,37 @@
                     border: none;
                     background-color: rgba(19, 39, 39, 0.658);
                     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-
-                    .input:focus {
-                        border: 3px solid red;
-                    }
-
+                    color: white;
+                    padding: 15px;
                 }
-
-                input::-webkit-input-placeholder {
-                    /* Chrome/Opera/Safari */
-                    color: rgb(114, 114, 114);
-                    margin-left: 10px;
-                }
-
-                input::-moz-placeholder {
-                    /* Firefox 19+ */
-                    color: rgb(255, 0, 0);
-                    margin-left: 10px;
-                }
-
-                input::-ms-input-placeholder {
-                    /* IE 10+ */
-                    color: rgb(255, 255, 255);
-                    margin-left: 10px;
-                }
-
-                input::-moz-placeholder {
-                    /* Firefox 18- */
-                    color: rgb(255, 255, 255);
-                    font-weight: lighter;
+                ::placeholder{
                     font-size: small;
-                    margin-left: 10px;
+                    color: rgb(192, 192, 192);
+
                 }
 
+                input:active,
+                input:focus {
+                    border: none;
+                    outline-offset: -2px;
+                    outline: none !important;
+                    font-size: small;
+                }
 
+                input:active,
+                input:focus {
+                    font-size: small;
+                    border: none;
+                    outline-offset: -2px;
+                    outline: none;
+                    padding: 2px solid green
+                }
+
+                .ie input:active,
+                .ie input:focus {
+                    outline: none;
+                    padding: 3px solid pink
+                }
 
 
             }
@@ -104,6 +112,7 @@
 
                     .chat-item-username {
                         font-size: 14px;
+                        color: white;
 
                     }
 
@@ -155,19 +164,14 @@
         .chat-window {
             border-radius: 5px;
             height: 100%;
-            // background-color: red;
             .header {
-                // background-color: lightblue;
                 height: 10%;
-                // width: 100%;
                 border-radius: 5px;
                 align-items: center;
+
                 .header-row {
-                    // background-color: rgb(17, 218, 17);
-                    // margin-bottom: 50px;
-                    // padding-left: 15px;
                     height: 100%;
-                    // display: flex;
+                    color: white;
                     align-items: center;
                     border-radius: 15px;
 
@@ -177,22 +181,21 @@
                 }
             }
 
-          
+
             .chat-box {
-                // background-color: blueviolet;
                 width: 100%;
-                // border-radius: 15px;
                 margin-top: 5%;
+
                 .message-received {
-                    // width: 100%;
                     margin-bottom: 10px;
+
                     span {
                         float: left;
                         font-size: small;
                         max-width: 50%;
                         padding: 10px;
                         border-radius: 15px 15px 15px 0px;
-                        background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+                        background-color: rgb(91, 175, 224);
                         color: black;
                         direction: ltr;
                     }
@@ -201,13 +204,14 @@
                 .message-sent {
                     width: 100%;
                     margin-bottom: 10px;
+
                     span {
                         float: right;
                         font-size: small;
                         max-width: 50%;
                         padding: 10px;
                         border-radius: 15px 15px 0px 15px;
-                        background-image: linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%);
+                        background-color: #91b4df;
                         color: black;
                         direction: ltr;
                     }
@@ -216,6 +220,7 @@
 
             .message-box {
                 @include center();
+
                 input {
                     width: 100%;
                     height: 40px;
@@ -223,14 +228,42 @@
                     border: none;
                     background-color: rgba(21, 128, 128, 0.658);
                     box-shadow: rgba(3, 3, 3, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-
-                    .input:focus {
-                        border: 3px solid red !important;
-                    }
+                    color: white;
+                    padding: 15px;
                 }
 
-            }}
+                ::placeholder{
+                    font-size: small;
+                    color: rgb(192, 192, 192);
+
+                }
+
+                input:active,
+                input:focus {
+                    border: none;
+                    outline-offset: -2px;
+                    outline: none !important;
+                    font-size: small;
+                }
+
+                input:active,
+                input:focus {
+                    font-size: small;
+                    border: none;
+                    outline-offset: -2px;
+                    outline: none;
+                    padding: 2px solid green
+                }
+
+                .ie input:active,
+                .ie input:focus {
+                    outline: none;
+                    padding: 3px solid pink
+                }
+
+            }
         }
-
-
     }
+
+
+}
