@@ -4,7 +4,8 @@ const initialState = {
   login: null,
   password: null,
   userName:null,
-  loginLoading:null
+  loginLoading:null,
+  userInfo:null
 };
 
 export const loginSlice = createSlice({
@@ -22,10 +23,13 @@ export const loginSlice = createSlice({
         },
         setLoginLoader:(state, action)=>{
           state.loginLoading = action.payload
+        },
+        setUserInfo:(state, action)=>{
+          state.userInfo = action.payload
         }
     }
 })
 
-export const {setUsername, setLoginLoader} = loginSlice.actions
+export const {setUsername, setLoginLoader, setUserInfo} = loginSlice.actions
 
 export default loginSlice.reducer

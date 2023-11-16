@@ -8,11 +8,13 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import socket from "../Socket.js/index.js";
 import 'react-perfect-scrollbar/dist/css/styles.css';
+import AddFriend from "../Modal/AddFriend/index.js";
 const Chatpage = () => {
 
   const [selectedSocketId, setselectedSocketId] = useState(null)
   const { userName } = useSelector(state => state.login)
   const [onlineUsers, setOnlineUsers] = useState([])
+  const [showModal, setshowModal] = useState(false)
   const [messageLog, setMessageLog] = useState([{
     sender: 'Bhoop',
     recipient: 'Abhay',
@@ -45,9 +47,9 @@ const Chatpage = () => {
 
   socket.on('online', (data) => {
     let newArray = [];
-    console.log("data", data[0]?.user?.first_name?.toUpperCase())
+    // console.log("data", data[0]?.user?.first_name?.toUpperCase())
     newArray = data?.filter(obj => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase())
-    console.log("newArray",newArray)
+    // console.log("newArray",newArray)
     setOnlineUsers(newArray)
   })
 
@@ -64,17 +66,18 @@ const Chatpage = () => {
     if (scrollContainerRef?.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef?.current?.scrollHeight
     }
-    console.log(messageLog)
+    // console.log(messageLog)
   }, [messageLog]);
 
 
   const onMessageSent = (name) => {
-    socket.emit('private-message', { socketId: selectedSocketId?.socketId, message: { sender: userName, recipient: selectedSocketId?.user, msgBody: getValues('messageBox'), msgDateTime: new Date() } })
+    // console.log("selectedSocketId",selectedSocketId)
+    socket.emit('private-message', { socketId: selectedSocketId?.socketId, message: { sender: userName, recipient: selectedSocketId?.user?.first_name, msgBody: getValues('messageBox'), msgDateTime: new Date() } })
     setValue('messageBox', '')
   }
 
   React.useEffect(() => {
-    console.log(selectedSocketId)
+    // console.log(selectedSocketId)
     return () => {
     }
   }, [selectedSocketId])
@@ -86,16 +89,21 @@ const Chatpage = () => {
   }, [onlineUsers])
 
   const selectSocketId = (ele) => {
-    // setselectedSocketId(ele)
-    console.log("ele", ele)
+    setselectedSocketId(ele)
+    // console.log("ele", ele)
   }
 
+  const addFriend = (ele) => { 
+    // console.log("ele",ele)
+    setshowModal(true)
+   }
+
   window.addEventListener('unload', function () {
-    console.log("unload")
+    // console.log("unload")
     socket.disconnect()
   });
   window.addEventListener('beforeunload', function (e) {
-    console.log("before unload")
+    // console.log("before unload")
     socket.disconnect()
   });
 
@@ -121,7 +129,6 @@ const Chatpage = () => {
             <div className="infinite-scroll">
               <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
                 {onlineUsers?.map((ele, i) => {
-                  console.log(ele)
                   return (
                       <Col className="chat-list-item" key={ele?.id}>
                         <div className="item-content">
@@ -153,7 +160,7 @@ const Chatpage = () => {
               <div className="header">
                 <Row className="header-row">
                   <Col md={10} lg={10} className="chat-window-header">
-                    {selectedSocketId?.user}
+                    {selectedSocketId?.user?.first_name}  <span className="mx-2" onClick={addFriend} style={{cursor:"pointer"}}><i className="bi bi-person-plus"></i></span>
                   </Col>
                   <Col className="option-icon" md={2} lg={2}>
                     <i className="bi bi-three-dots-vertical mx-4"></i>
@@ -168,12 +175,13 @@ const Chatpage = () => {
                   dataLength={data?.length}
                 >
                   <Row className="chat-box" style={{ backgroundColor: "", overflow: "" }}>
-                    {messageLog?.map((ele) => {
+                    {messageLog?.map((ele, i) => {
                       if (ele?.sender === userName) {
-                        return <div className="message-sent">
-                          <span>{(ele?.msgBody).trim()}</span>
+                        return <div className="message-sent" key={i}>
+                          <span>{ele?.msgBody}</span>
                         </div>
                       }
+
                       else {
                         return <div className="message-received">
                           <span>
@@ -215,6 +223,7 @@ const Chatpage = () => {
           </Col>}
 
         </Row>
+      <AddFriend showModal={showModal} setshowModal={setshowModal} friend_id={selectedSocketId?.user?.id}/>
       </Container>
     </div>
   );

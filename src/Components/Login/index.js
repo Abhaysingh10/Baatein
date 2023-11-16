@@ -5,7 +5,7 @@ import Banner from "./../../Assest/Image/banner.jpg";
 import Logo from "./../../Assest/Image/Logo.png";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoginLoader, setUsername } from "./loginReducer";
+import { setLoginLoader, setUserInfo, setUsername } from "./loginReducer";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../Components/Loader/Loader";
 import axios from "axios";
@@ -41,6 +41,7 @@ export const Login = () => {
       .then((response) => {
         dispatch(setLoginLoader(false));
         if (response.status == 200) {
+          dispatch(setUserInfo(response?.data))
           dispatch(setUsername(getValues("first_name")));
           navigate("/chat");
         }
