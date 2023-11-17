@@ -1,11 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFriendsList } from '../../Chatpage/ChatpageAction';
 
 const AddFriend = (prop) => {
     const {friend_id, showModal, setshowModal} = prop;
-    const {userInfo} = useSelector(state => state.login)
+    const {ownerInfo} = useSelector(state => state.ownerInfo)
+    const dispatch = useDispatch()
     // const [modalShow,  setshowModal] = useState(false)
     const handleClose = (second) => { 
         setshowModal(false)
@@ -13,9 +15,15 @@ const AddFriend = (prop) => {
 
      const addFriend = () => { 
         axios.post('http://localhost:3000/add-friend',{
-            owner_id:userInfo?.id,
+            owner_id:ownerInfo?.id,
             friend_id:friend_id
-        }).then(()=>{}).catch((ex)=>{console.log(ex)})
+        }).then((data)=>{
+            console.log("data", data)
+            if (data?.status) {
+                setshowModal(false)
+                getFriendsList(ownerInfo?.id, dispatch)
+            }
+        }).catch((ex)=>{console.log(ex)})
       }
     return (
         <div

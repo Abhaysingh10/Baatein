@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../Components/Loader/Loader";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import { setOwnerInfo } from "../../OwnerReducer";
 export const Login = () => {
   const [registerEnabled, setRegisterEnabled] = useState(false);
   const { loginLoading } = useSelector((state) => state.login);
@@ -41,7 +42,7 @@ export const Login = () => {
       .then((response) => {
         dispatch(setLoginLoader(false));
         if (response.status == 200) {
-          dispatch(setUserInfo(response?.data))
+          dispatch(setOwnerInfo(response?.data))
           dispatch(setUsername(getValues("first_name")));
           navigate("/chat");
         }

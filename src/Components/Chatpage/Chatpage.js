@@ -5,16 +5,24 @@ import Logo from "./../../Assest/Image/man.png";
 import User from "./../../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Controller, useForm } from "react-hook-form";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import socket from "../Socket.js/index.js";
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import AddFriend from "../Modal/AddFriend/index.js";
+import axios from "axios";
+import { setFriendList } from "../../OwnerReducer.js";
+import { getFriendsList } from "./ChatpageAction.js";
+
+
+
 const Chatpage = () => {
 
   const [selectedSocketId, setselectedSocketId] = useState(null)
+  const { ownerInfo, friendList } = useSelector(state => state.ownerInfo)
   const { userName } = useSelector(state => state.login)
   const [onlineUsers, setOnlineUsers] = useState([])
   const [showModal, setshowModal] = useState(false)
+  const dispatch = useDispatch()
   const [messageLog, setMessageLog] = useState([{
     sender: 'Bhoop',
     recipient: 'Abhay',
@@ -33,28 +41,34 @@ const Chatpage = () => {
     { id: 1, name: "Vally", chatDetails: "", dsateTime: "Today" }
   ]);
 
+
+  
+
   React.useEffect(() => {
     if (!socket.connected) {
       socket.connect()
     }
-
     return () => {
       socket.disconnect()
     }
   }, [])
 
+  useEffect(() => {
 
+    if (ownerInfo != null) {
+      getFriendsList(ownerInfo?.id, dispatch)
+    }
+    return () => {
+    }
+  }, [ownerInfo])
 
   socket.on('online', (data) => {
     let newArray = [];
-    // console.log("data", data[0]?.user?.first_name?.toUpperCase())
     newArray = data?.filter(obj => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase())
-    // console.log("newArray",newArray)
     setOnlineUsers(newArray)
   })
 
   socket.on('private-message', ({ message }) => {
-    // console.log("received message", message)
     setMessageLog(message)
   })
 
@@ -66,8 +80,18 @@ const Chatpage = () => {
     if (scrollContainerRef?.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef?.current?.scrollHeight
     }
-    // console.log(messageLog)
   }, [messageLog]);
+
+  useEffect(() => {
+    
+    console.log(friendList?.some(item => item.friend_id === selectedSocketId?.user?.id))
+    console.log(friendList, selectedSocketId?.user?.id)
+  
+    return () => {
+      
+    }
+  }, [friendList, selectedSocketId])
+  
 
 
   const onMessageSent = (name) => {
@@ -93,10 +117,10 @@ const Chatpage = () => {
     // console.log("ele", ele)
   }
 
-  const addFriend = (ele) => { 
+  const addFriend = (ele) => {
     // console.log("ele",ele)
     setshowModal(true)
-   }
+  }
 
   window.addEventListener('unload', function () {
     // console.log("unload")
@@ -119,7 +143,7 @@ const Chatpage = () => {
               </Col>
             </Row>
             <Row>
-              <Col className="name-title">{userName}</Col>
+              <Col className="name-title">{ownerInfo?.first_name}</Col>
             </Row>
             <Row>
               <Col className="search-chat">
@@ -130,26 +154,26 @@ const Chatpage = () => {
               <InfiniteScroll dataLength={data?.length} height={"calc(100vh - 300px)"} style={{ scrollbarWidth: "none" }}>
                 {onlineUsers?.map((ele, i) => {
                   return (
-                      <Col className="chat-list-item" key={ele?.id}>
-                        <div className="item-content">
-                          <Row>
-                            <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
-                              <img src={User} className="rounded-circle" alt="..." />
-                            </Col>
-                            <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} onClick={() => selectSocketId(ele)}>
-                              <Row style={{ backgroundColor: "" }}>
-                                <span className="chat-item-username">{ele?.user?.first_name}</span>
-                              </Row>
-                              <Row style={{ backgroundColor: "" }}>
-                                {/* <span className="chat-details">{ messageLog[messageLog?.length-1].msgBody } {messageLog[messageLog?.length-1]?.msgBody}</span> */}
-                              </Row>
-                            </Col>
-                            <Col xs={3} sm={2} md={2} lg={2} style={{ backgroundColor: "" }}>
-                              {/* <span className="date-time">{new Date(messageLog[messageLog?.length-1]?.msgDateTime).toLocaleTimeString()}</span> */}
-                            </Col>
-                          </Row>
-                        </div>
-                      </Col>
+                    <Col className="chat-list-item" key={ele?.id}>
+                      <div className="item-content">
+                        <Row>
+                          <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
+                            <img src={User} className="rounded-circle" alt="..." />
+                          </Col>
+                          <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} onClick={() => selectSocketId(ele)}>
+                            <Row style={{ backgroundColor: "" }}>
+                              <span className="chat-item-username">{ele?.user?.first_name}</span>
+                            </Row>
+                            <Row style={{ backgroundColor: "" }}>
+                              {/* <span className="chat-details">{ messageLog[messageLog?.length-1].msgBody } {messageLog[messageLog?.length-1]?.msgBody}</span> */}
+                            </Row>
+                          </Col>
+                          <Col xs={3} sm={2} md={2} lg={2} style={{ backgroundColor: "" }}>
+                            {/* <span className="date-time">{new Date(messageLog[messageLog?.length-1]?.msgDateTime).toLocaleTimeString()}</span> */}
+                          </Col>
+                        </Row>
+                      </div>
+                    </Col>
                   );
                 })}
               </InfiniteScroll>
@@ -160,7 +184,14 @@ const Chatpage = () => {
               <div className="header">
                 <Row className="header-row">
                   <Col md={10} lg={10} className="chat-window-header">
-                    {selectedSocketId?.user?.first_name}  <span className="mx-2" onClick={addFriend} style={{cursor:"pointer"}}><i className="bi bi-person-plus"></i></span>
+                    {selectedSocketId?.user?.first_name} {  !friendList?.some(item => item.friend_id === selectedSocketId?.user?.id) &&  <span
+                      className="mx-2"
+                      onClick={addFriend}
+                      style={{ cursor: "pointer" }}>
+                      <i className="bi bi-person-plus">
+                      </i>
+                    </span> } <span> </span>
+                    
                   </Col>
                   <Col className="option-icon" md={2} lg={2}>
                     <i className="bi bi-three-dots-vertical mx-4"></i>
@@ -216,14 +247,14 @@ const Chatpage = () => {
                   />
                 </Col>
 
-                <Col lg={1} ><i className="bi bi-send" style={{ cursor: "pointer" }} onClick={onMessageSent} ></i></Col>
+                <Col lg={1} ><i className="bi bi-send" style={{ cursor: "pointer", color: "white" }} onClick={onMessageSent} ></i></Col>
 
               </Row>
             </div>
           </Col>}
 
         </Row>
-      <AddFriend showModal={showModal} setshowModal={setshowModal} friend_id={selectedSocketId?.user?.id}/>
+        <AddFriend showModal={showModal} setshowModal={setshowModal} friend_id={selectedSocketId?.user?.id} />
       </Container>
     </div>
   );
