@@ -1,5 +1,5 @@
+import "./Chatpage.scss";
 import React, { useEffect, useRef, useState } from "react";
-import "./../Chatpage/Chatpage.scss";
 import { Col, Container, Row } from "react-bootstrap";
 import Logo from "./../../Assest/Image/man.png";
 import User from "./../../Assest/Image/insta.png";
@@ -11,7 +11,10 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 import AddFriend from "../Modal/AddFriend/index.js";
 import axios from "axios";
 import { setFriendList } from "../../OwnerReducer.js";
-import { getFriendsList } from "./ChatpageAction.js";
+import { fetchMessages, getFriendsList } from "./ChatpageAction.js";
+import Loader from "../Loader/Loader.js";
+import { setLoginLoader } from "../Login/loginReducer.js";
+import { setMessages } from "./ChatpageReducers.js";
 
 
 
@@ -19,6 +22,10 @@ const Chatpage = () => {
 
   const [selectedSocketId, setselectedSocketId] = useState(null)
   const { ownerInfo, friendList } = useSelector(state => state.ownerInfo)
+  const { loginLoading } = useSelector((state) => state.login);
+
+  const { messages } = useSelector(state => state.chat)
+
   const { userName } = useSelector(state => state.login)
   const [onlineUsers, setOnlineUsers] = useState([])
   const [showModal, setshowModal] = useState(false)
@@ -69,7 +76,8 @@ const Chatpage = () => {
   })
 
   socket.on('private-message', ({ message }) => {
-    setMessageLog(message)
+    console.log("private-message",message)
+    dispatch(setMessages(message))
   })
 
   React.useEffect(() => {
@@ -80,28 +88,29 @@ const Chatpage = () => {
     if (scrollContainerRef?.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef?.current?.scrollHeight
     }
+    
   }, [messageLog]);
+
 
   useEffect(() => {
     
-    console.log(friendList?.some(item => item.friend_id === selectedSocketId?.user?.id))
-    console.log(friendList, selectedSocketId?.user?.id)
+    console.log("messages", messages)
   
     return () => {
       
     }
-  }, [friendList, selectedSocketId])
+  }, [messages])
+  
   
 
 
   const onMessageSent = (name) => {
-    // console.log("selectedSocketId",selectedSocketId)
-    socket.emit('private-message', { socketId: selectedSocketId?.socketId, message: { sender: userName, recipient: selectedSocketId?.user?.first_name, msgBody: getValues('messageBox'), msgDateTime: new Date() } })
+    console.log("called", selectedSocketId)
+    socket.emit('private-message', { socketId: selectedSocketId?.socketId, message: { senderId: ownerInfo?.id, receiverId: selectedSocketId?.user?.id, content: getValues('messageBox') } })
     setValue('messageBox', '')
   }
 
   React.useEffect(() => {
-    // console.log(selectedSocketId)
     return () => {
     }
   }, [selectedSocketId])
@@ -113,8 +122,10 @@ const Chatpage = () => {
   }, [onlineUsers])
 
   const selectSocketId = (ele) => {
+    dispatch(setLoginLoader(true))
     setselectedSocketId(ele)
-    // console.log("ele", ele)
+    console.log(ownerInfo?.id, ele?.user?.id)
+    fetchMessages(ownerInfo?.id, ele?.user?.id, dispatch)
   }
 
   const addFriend = (ele) => {
@@ -134,7 +145,7 @@ const Chatpage = () => {
 
   return (
     <div className="main">
-      <Container className="container" key={1} >
+      <Container className="container-div" key={1} >
         <Row className="my-2" key={1}>
           <Col lg={4} className="chat-list ">
             <Row>
@@ -206,17 +217,17 @@ const Chatpage = () => {
                   dataLength={data?.length}
                 >
                   <Row className="chat-box" style={{ backgroundColor: "", overflow: "" }}>
-                    {messageLog?.map((ele, i) => {
-                      if (ele?.sender === userName) {
+                    {messages?.map((ele, i) => {
+                      if (ele?.senderId === ownerInfo?.id) {
                         return <div className="message-sent" key={i}>
-                          <span>{ele?.msgBody}</span>
+                          <span>{ele?.content}</span>
                         </div>
                       }
 
                       else {
                         return <div className="message-received">
                           <span>
-                            {ele?.msgBody}
+                            {ele?.content}
                           </span>
                         </div>
                       }
@@ -256,6 +267,8 @@ const Chatpage = () => {
         </Row>
         <AddFriend showModal={showModal} setshowModal={setshowModal} friend_id={selectedSocketId?.user?.id} />
       </Container>
+      {loginLoading && <Loader/>}
+
     </div>
   );
 };

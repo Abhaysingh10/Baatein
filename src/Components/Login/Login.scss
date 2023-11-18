@@ -1,5 +1,4 @@
-$bg-light: #ffffff;
-$bg-dark: #000;
+
 
 @mixin center {
     display: flex;
@@ -8,108 +7,146 @@ $bg-dark: #000;
 }
 
 .main {
-    color: $bg-dark;
-    height: 100vh;
-    width: 100vw1;
+    // color: $bg-dark;
+    // height: 100vh;
+    // width: 100vw;
     @include center();
     font-family: "Poppins";
-}
 
-.main-container {
-    height: 90vh;
-    background-color: rgba(79, 111, 201, 0);
-    @include center();
-    border-radius: 10px;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px 0px, rgba(0, 0, 0, 0.22) 0px 15px 12px 0px;
-    transition: 0.1s linear;
-
-    .login-page-form {
-        background-color: rgba(255, 255, 255, 0.398);
-        width: 50vw;
-        height: 90vh;
+    .main-container {
+        // height: 90%;
+        // width: 90%;
+        // background-color: rgba(79, 111, 201, 0.5);
         @include center();
-        border-radius: 10px 0px 0px 10px;
-        backdrop-filter: blur(5px);
-        .credential-box {
-            background-color: rgba(197, 130, 43, 0);
-            height: 150px;
-            // width: 70%;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px 0px, rgba(0, 0, 0, 0.22) 0px 15px 12px 0px;
+        transition: 0.1s linear;
+    
+        .login-page-form {
+            background-color: rgba(82, 128, 158, 0.398);
+            // width: 50vw;
+            height: 80vh;
             @include center();
-            flex-direction: column;
-            font-size: 12px;
-
-            .logo {
-                display: flex;
-            }
-
-            input {
-                width: 100%;
-                padding: 10px;
-                border: 0.2px solid #68686823;
-                border-radius: 10px;
-                // margin: 6px;
-                font-size: small;
-                text-indent: 30px;
-                animation: normal;
-
-            }
-
-            .input-icons i {
-                position: absolute;
-                margin-top: 10px;
-                margin-left: 10px;
-                animation: normal;
-
-            }
-
-            .input-icons {
-                margin-bottom: 20px;
-                width: 100%;
-                animation: normal;
-                .error-msg{
-                    font-family: 'Courier New', Courier, monospace;
-                    color: rgba(110, 0, 0, 0.993);
-                    margin-top: 5px;
-                }
-            }
-
-            .icon {
-                padding: 10px;
-                min-width: 10px;
-            }
-
-            .submit-row {
-                width: 350px;
-
-                .register-forgot-parent {
-                    font-size: small;
+            border-radius: 10px 0px 0px 10px;
+            backdrop-filter: blur(15px);
+    
+            .credential-box {
+                background-color: rgba(197, 130, 43, 0);
+                height: 150px;
+                // width: 70%;
+                @include center();
+                flex-direction: column;
+                font-size: 12px;
+    
+                .logo {
                     display: flex;
-                    align-items: center;
-
-                    .register-text{
-                        cursor: pointer;
+                }
+    
+                input {
+                    width: 100%;
+                    padding: 10px;
+                    border: 0.2px solid #68686823;
+                    border-radius: 10px;
+                    // margin: 6px;
+                    font-size: small;
+                    text-indent: 30px;
+                    animation: normal;
+    
+                }
+    
+                .input-icons i {
+                    position: absolute;
+                    margin-top: 10px;
+                    margin-left: 10px;
+                    animation: normal;
+    
+                }
+    
+                .input-icons {
+                    margin-bottom: 20px;
+                    width: 100%;
+                    animation: normal;
+    
+                    .error-msg {
+                        font-family: 'Courier New', Courier, monospace;
+                        color: rgba(110, 0, 0, 0.993);
+                        margin-top: 5px;
                     }
-
-                    .forgot-text {
-                        margin-left: 20px;
-                    }
-
-                    .submit-text {
+                }
+    
+                .icon {
+                    padding: 10px;
+                    min-width: 10px;
+                }
+    
+                .submit-row {
+                    width: 350px;
+    
+                    .register-forgot-parent {
+                        font-size: small;
                         display: flex;
                         align-items: center;
-                        justify-content: flex-end;
+    
+                        .register-text {
+                            cursor: pointer;
+                        }
+    
+                        .forgot-text {
+                            margin-left: 20px;
+                        }
+    
+                        .submit-text {
+                            display: flex;
+                            align-items: center;
+                            justify-content: flex-end;
+                        }
                     }
                 }
             }
         }
+    
+        .login-page-banner {
+            background-color: rgba(165, 255, 255, 0);
+            // width: 50vw;
+            // height: 90vh;
+            // padding: 0;
+            border-radius: 0px 10px 10px 0px;
+            @include center();
+        }
     }
+}
 
-    .login-page-banner {
-        background-color: rgba(165, 255, 255, 0);
-        width: 50vw;
-        height: 90vh;
-        padding: 0;
-        border-radius: 0px 10px 10px 0px;
-        @include center();
+
+
+@media only screen and (min-width: 576px) {
+    .main-container {
+        // background-color: rgb(230, 182, 173);
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .main-container {
+        // background-color: rgba(230, 221, 173, 0);
+        //   color: red;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .main-container {
+        // background-color: rgb(173, 230, 199);
+        // color: black;
+
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .main-container {
+        // background-color: rgb(193, 173, 230);
+    }
+}
+
+@media only screen and (min-width: 1400px) {
+    .main-container {
+        // background-color: rgb(230, 173, 213);
     }
 }

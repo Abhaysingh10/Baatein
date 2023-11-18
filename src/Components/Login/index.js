@@ -1,6 +1,6 @@
+import "./Login.scss";
 import React, { useState } from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
-import "./Login.scss";
 import Banner from "./../../Assest/Image/banner.jpg";
 import Logo from "./../../Assest/Image/Logo.png";
 import { Controller, useForm } from "react-hook-form";
@@ -48,6 +48,7 @@ export const Login = () => {
         }
       })
       .catch((err) => {
+        console.log("err", err)
         if (err?.response?.status == 401) {
           toast.error(err?.response?.data);
           enableRegister();
@@ -86,9 +87,9 @@ export const Login = () => {
 
   return (
     <div className="main">
-      <Container className="main-container">
+      <div className="main-container container">
         <Row>
-          <Col className="login-page-form">
+          <Col className="login-page-form" xs={12} sm={12} md={6} lg={6} style={{backgroundColor:""}}>
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* <div> */}
               <div className="credential-box">
@@ -160,7 +161,7 @@ export const Login = () => {
 
                 <div className="submit-row" style={{}}>
                   <Row>
-                    <Col className="register-forgot-parent" md={8} style={{}}>
+                    <Col className="register-forgot-parent" md={8} sm={8} xs={8} style={{}}>
                       <span className="register-text" onClick={handleRegister}>
                         Register
                       </span>
@@ -169,6 +170,8 @@ export const Login = () => {
                     <Col
                       className="submit-text"
                       md={4}
+                      sm={4}
+                      xs={4}
                       style={{  }}
                     >
                       <button
@@ -184,20 +187,8 @@ export const Login = () => {
                 {/* </div> */}
               </div>
             </form>
-            {/* {registerEnabled && (
-              <Col
-                className="submit-text"
-                md={6}
-                style={{ textAlign: "center" }}
-              >
-                <button className="btn btn-primary" style={{marginTop:"200px"}}
-                 onClick={handleRegister}>
-                  Register
-                </button>
-              </Col> 
-            )} */}
           </Col>
-          <Col className="login-page-banner">
+          <Col className="login-page-banner" xs={1} sm={1} md={6} lg={6}>
             <Image
               src={Banner}
               style={{ objectFit: "cover", borderRadius: "0px 10px 10px 0px" }}
@@ -206,7 +197,7 @@ export const Login = () => {
             />
           </Col>
         </Row>
-      </Container>
+      </div>
 
       {loginLoading && <Loader />}
       <ToastContainer />
