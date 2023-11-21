@@ -14,7 +14,7 @@ import { setFriendList } from "../../OwnerReducer.js";
 import { fetchMessages, getFriendsList } from "./ChatpageAction.js";
 import Loader from "../Loader/Loader.js";
 import { setLoginLoader } from "../Login/loginReducer.js";
-import { setMessages } from "./ChatpageReducers.js";
+import { addMessages, setMessages } from "./ChatpageReducers.js";
 
 
 
@@ -69,16 +69,25 @@ const Chatpage = () => {
     }
   }, [ownerInfo])
 
+
   socket.on('online', (data) => {
     let newArray = [];
     newArray = data?.filter(obj => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase())
     setOnlineUsers(newArray)
   })
+  
+  useEffect(() => {
 
-  socket.on('private-message', ({ message }) => {
-    console.log("private-message",message)
-    dispatch(setMessages(message))
-  })
+    socket.on('private-message-received', ({ message }) => {
+      dispatch(addMessages(message))
+    })    
+  
+    return () => {
+      
+    }
+  }, [socket])
+  
+
 
   React.useEffect(() => {
     socket.emit('abhay', { "name": userName })
@@ -89,7 +98,7 @@ const Chatpage = () => {
       scrollContainerRef.current.scrollTop = scrollContainerRef?.current?.scrollHeight
     }
     
-  }, [messageLog]);
+  }, [messages]);
 
 
   useEffect(() => {
@@ -176,7 +185,7 @@ const Chatpage = () => {
                               <span className="chat-item-username">{ele?.user?.first_name}</span>
                             </Row>
                             <Row style={{ backgroundColor: "" }}>
-                              {/* <span className="chat-details">{ messageLog[messageLog?.length-1].msgBody } {messageLog[messageLog?.length-1]?.msgBody}</span> */}
+                              <span className="chat-details font-weight-light"> {messages && messages[messages?.length-1]?.content}</span>
                             </Row>
                           </Col>
                           <Col xs={3} sm={2} md={2} lg={2} style={{ backgroundColor: "" }}>
