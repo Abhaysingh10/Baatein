@@ -39,36 +39,51 @@ const Chatpage = () => {
 
   useEffect(() => {
     if (ownerInfo != null) {
-      if (!socket.connected) {
-        socket.auth = { ownerInfo };
+      const sessionID = localStorage.getItem("sessionID");
+      console.log("owner", ownerInfo);
+      if (!sessionID) {
+        socket.auth = {ownerInfo  }
+        socket.connect();
+      }
+      if (sessionID) {
+        socket.auth = { sessionID };
         socket.connect();
       }
     }
-    return () => {};
+    return () => { };
   }, [ownerInfo]);
 
+  socket.on("session", ({ sessionID, userID }) => {
+    // attach the session ID to the next reconnection attempts
+    socket.auth = { sessionID };
+    // store it in the localStorage
+    localStorage.setItem("sessionID", sessionID);
+    // save the ID of the user
+    socket.userID = userID;
+
+    console.log("sessionID", sessionID, "userID", userID);
+  });
 
   socket.on("connected-users", (data) => {
     let newArray = [];
+    console.log("data", data);
     newArray = data?.filter(
       (obj) => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
     );
     setOnlineUsers(newArray);
   });
 
- useEffect(() => {
-  socket.on('private-message-received', ( message ) => {
-    console.log("private-message-received",message)
-    dispatch(addMessages(message))
-  })
-   return () => {
-   }
- }, [socket])
- 
+  useEffect(() => {
+    socket.on("private-message-received", (message) => {
+      console.log("private-message-received", message);
+      dispatch(addMessages(message));
+    });
+    return () => { };
+  }, [socket]);
 
   socket.on("connect_error", (err) => {
     if (err.message === "Invalid owner information.") {
-      console.log("Invalid username")
+      console.log("Invalid username");
     }
   });
 
@@ -81,11 +96,9 @@ const Chatpage = () => {
       senderId: ownerInfo?.id,
       receiverId: selectedSocketId?.user?.id,
     });
-    dispatch(addMessages({content:content, senderId:ownerInfo?.id }))
+    dispatch(addMessages({ content: content, senderId: ownerInfo?.id }));
     setValue("messageBox", "");
   };
-
-  // console.log(socket.id,"ownerInfo")
 
   const selectSocketId = (ele) => {
     dispatch(setLoginLoader(true));
@@ -95,27 +108,24 @@ const Chatpage = () => {
 
   useEffect(() => {
     if (scrollContainerRef?.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef?.current?.scrollHeight
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef?.current?.scrollHeight;
     }
   }, [messages]);
 
   const addFriend = (ele) => {
     // console.log("ele",ele)
-    setshowModal(true)
-  }
+    setshowModal(true);
+  };
 
   window.addEventListener("unload", function () {
     socket.disconnect();
   });
 
   useEffect(() => {
-    console.log("Recevied messages", messages)
-    return () => {
-    }
-  }, [messages])
-  
- 
-
+    console.log("Recevied messages", messages);
+    return () => { };
+  }, [messages]);
 
   return (
     <div className="main">
@@ -152,27 +162,15 @@ const Chatpage = () => {
                     <Col className="chat-list-item" key={ele?.id}>
                       <div className="item-content">
                         <Row>
-                          <Col
-                            xs={2}
-                            sm={2}
-                            md="auto"
-                            lg={2}
-                            style={{ backgroundColor: "" }}
-                          >
+                          <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
                             <img
                               src={User}
                               className="rounded-circle"
                               alt="..."
                             />
                           </Col>
-                          <Col
-                            xs={7}
-                            sm={8}
-                            md={7}
-                            lg={8}
-                            style={{ backgroundColor: "" }}
-                            onClick={() => selectSocketId(ele)}
-                          >
+                          <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} 
+                          onClick={() => selectSocketId(ele)}>
                             <Row style={{ backgroundColor: "" }}>
                               <span className="chat-item-username">
                                 {ele?.user?.first_name}
@@ -209,14 +207,14 @@ const Chatpage = () => {
                       {!friendList?.some(
                         (item) => item.friend_id === selectedSocketId?.user?.id
                       ) && (
-                        <span
-                          className="mx-2"
-                          onClick={addFriend}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <i className="bi bi-person-plus"></i>
-                        </span>
-                      )}{" "}
+                          <span
+                            className="mx-2"
+                            onClick={addFriend}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <i className="bi bi-person-plus"></i>
+                          </span>
+                        )}{" "}
                       <span> </span>
                     </Col>
                     <Col className="option-icon" md={2} lg={2}>

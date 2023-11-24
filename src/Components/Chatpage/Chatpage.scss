@@ -10,8 +10,12 @@
     overflow: hidden;
     height: 100vh;
     width: 100vw;
-    // background-color: rgb(71, 49, 19);
-    background-image: url('./../../Assest/Image/chat-bg.jpg');
+    background-color: rgb(71, 49, 19);
+    background: #000428;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to left, #004e92, #000428);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to left, #004e92, #000428); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    // background-image: url('./../../Assest/Image/chat-bg.jpg');
     background-repeat: no-repeat;
     background-size: cover;
     color: aliceblue;
