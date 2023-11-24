@@ -78,12 +78,12 @@ export const Login = () => {
 
   window.addEventListener("unload", function () {
     console.log("unload");
-    // socket.disconnect()
   });
   window.addEventListener("beforeunload", function (e) {
     console.log("before unload");
-    // socket.disconnect()
   });
+
+
 
   return (
     <div className="main">
