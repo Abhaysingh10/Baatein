@@ -10,18 +10,23 @@ import "react-perfect-scrollbar/dist/css/styles.css";
 import AddFriend from "../Modal/AddFriend/index.js";
 import { fetchMessages, getFriendsList } from "./ChatpageAction.js";
 import Loader from "../Loader/Loader.js";
-import { setLoginLoader } from "../Login/loginReducer.js";
+import { setLoginLoader, setUserInfo } from "../Login/loginReducer.js";
 import socket from "../Socket.js/index.js";
 import { addMessages, setMessages } from "./ChatpageReducers.js";
+import { useNavigate } from "react-router-dom";
+import online from '../../Assest/Image/online-icon.png'
+import offline from '../../Assest/Image/offline-icon.png'
+
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
   const { ownerInfo, friendList } = useSelector((state) => state.ownerInfo);
-  const { loginLoading } = useSelector((state) => state.login);
+  const { loginLoading, userName } = useSelector((state) => state.login);
   const { messages } = useSelector((state) => state.chat);
-  const { userName } = useSelector((state) => state.login);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [userInfo, setuserInfo] = useState({})
   const [showModal, setshowModal] = useState(false);
+  const navigate = useNavigate()
   const dispatch = useDispatch();
 
   const scrollContainerRef = useRef(null);
@@ -38,54 +43,81 @@ const Chatpage = () => {
   ]);
 
   useEffect(() => {
-    if (ownerInfo != null) {
+    
+    console.log("localstorage",localStorage.getItem('first_name'))
+  
+    return () => {
+      
+    }
+  }, [])
+  
+  useEffect(() => {
+    // if (ownerInfo != null) {
       const sessionID = localStorage.getItem("sessionID");
-      console.log("owner", ownerInfo);
       if (!sessionID) {
-        socket.auth = {ownerInfo  }
+        socket.auth = { ownerInfo }
         socket.connect();
       }
       if (sessionID) {
         socket.auth = { sessionID };
         socket.connect();
       }
-    }
+    // }
     return () => { };
   }, [ownerInfo]);
+  
+  useEffect(() => {
+    socket.on("private-message-received", (message) => {
+      console.log("private-message received", message);
+      dispatch(addMessages(message));
+    });
+    return () => { };
+  }, [socket]);
 
-  socket.on("session", ({ sessionID, userID }) => {
+  useEffect(() => {
+    if (scrollContainerRef?.current) {
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef?.current?.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    console.log("Online users", onlineUsers);
+    return () => { };
+  }, [onlineUsers]);
+
+
+  socket.on("session", ({ sessionID, userID, username }) => {
     // attach the session ID to the next reconnection attempts
     socket.auth = { sessionID };
     // store it in the localStorage
     localStorage.setItem("sessionID", sessionID);
     // save the ID of the user
     socket.userID = userID;
-
-    console.log("sessionID", sessionID, "userID", userID);
+    setuserInfo({userID, username})
   });
 
   socket.on("connected-users", (data) => {
     let newArray = [];
     console.log("data", data);
-    newArray = data?.filter(
-      (obj) => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
-    );
+    if (userName) {
+      newArray = data?.filter(
+        (obj) => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
+      );
+    }else{
+      newArray = data?.filter(
+        (obj) => obj?.user?.first_name?.toLowerCase() !== localStorage?.getItem('first_name')?.toLowerCase()
+      );
+    }
     setOnlineUsers(newArray);
   });
-
-  useEffect(() => {
-    socket.on("private-message-received", (message) => {
-      console.log("private-message-received", message);
-      dispatch(addMessages(message));
-    });
-    return () => { };
-  }, [socket]);
 
   socket.on("connect_error", (err) => {
     if (err.message === "Invalid owner information.") {
       console.log("Invalid username");
     }
   });
+
 
   const onMessageSent = () => {
     const content = getValues("messageBox");
@@ -106,26 +138,21 @@ const Chatpage = () => {
     fetchMessages(ownerInfo?.id, ele?.user?.id, dispatch);
   };
 
-  useEffect(() => {
-    if (scrollContainerRef?.current) {
-      scrollContainerRef.current.scrollTop =
-        scrollContainerRef?.current?.scrollHeight;
-    }
-  }, [messages]);
-
   const addFriend = (ele) => {
     // console.log("ele",ele)
     setshowModal(true);
   };
 
+  const logout = () => { 
+    localStorage.clear()
+    navigate('/')
+   }
+
   window.addEventListener("unload", function () {
     socket.disconnect();
   });
 
-  useEffect(() => {
-    console.log("Recevied messages", messages);
-    return () => { };
-  }, [messages]);
+
 
   return (
     <div className="main">
@@ -144,7 +171,10 @@ const Chatpage = () => {
               </Col>
             </Row>
             <Row>
-              <Col className="name-title">{ownerInfo?.first_name}</Col>
+              <Col className="name-title">{userInfo?.username}   
+                <i class="bi bi-box-arrow-left mx-2" onClick={logout} title="Logout" style={{cursor:"pointer"}}>
+                  </i> 
+              </Col>
             </Row>
             <Row>
               <Col className="search-chat">
@@ -173,7 +203,7 @@ const Chatpage = () => {
                           onClick={() => selectSocketId(ele)}>
                             <Row style={{ backgroundColor: "" }}>
                               <span className="chat-item-username">
-                                {ele?.user?.first_name}
+                                {ele?.user?.first_name} 
                               </span>
                             </Row>
                             {/* <Row style={{ backgroundColor: "" }}>
