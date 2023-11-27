@@ -1,6 +1,6 @@
 import "./Chatpage.scss";
 import React, { useEffect, useRef, useState } from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import {Col, Container, Row } from "react-bootstrap";
 import Logo from "./../../Assest/Image/man.png";
 import User from "./../../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -14,8 +14,9 @@ import { setLoginLoader, setUserInfo } from "../Login/loginReducer.js";
 import socket from "../Socket.js/index.js";
 import { addMessages, setMessages } from "./ChatpageReducers.js";
 import { useNavigate } from "react-router-dom";
-import online from '../../Assest/Image/online-icon.png'
-import offline from '../../Assest/Image/offline-icon.png'
+import data from '@emoji-mart/data'
+import { Picker } from "emoji-mart";
+import EmojiPicker from "emoji-picker-react";
 
 
 const Chatpage = () => {
@@ -24,6 +25,7 @@ const Chatpage = () => {
   const { loginLoading, userName } = useSelector((state) => state.login);
   const { messages } = useSelector((state) => state.chat);
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [userInfo, setuserInfo] = useState({})
   const [showModal, setshowModal] = useState(false);
   const navigate = useNavigate()
@@ -43,29 +45,29 @@ const Chatpage = () => {
   ]);
 
   useEffect(() => {
-    
-    console.log("localstorage",localStorage.getItem('first_name'))
-  
+
+    console.log("localstorage", localStorage.getItem('first_name'))
+
     return () => {
-      
+
     }
   }, [])
-  
+
   useEffect(() => {
     // if (ownerInfo != null) {
-      const sessionID = localStorage.getItem("sessionID");
-      if (!sessionID) {
-        socket.auth = { ownerInfo }
-        socket.connect();
-      }
-      if (sessionID) {
-        socket.auth = { sessionID };
-        socket.connect();
-      }
+    const sessionID = localStorage.getItem("sessionID");
+    if (!sessionID) {
+      socket.auth = { ownerInfo }
+      socket.connect();
+    }
+    if (sessionID) {
+      socket.auth = { sessionID };
+      socket.connect();
+    }
     // }
     return () => { };
   }, [ownerInfo]);
-  
+
   useEffect(() => {
     socket.on("private-message-received", (message) => {
       console.log("private-message received", message);
@@ -85,6 +87,7 @@ const Chatpage = () => {
     console.log("Online users", onlineUsers);
     return () => { };
   }, [onlineUsers]);
+  
 
 
   socket.on("session", ({ sessionID, userID, username }) => {
@@ -94,7 +97,7 @@ const Chatpage = () => {
     localStorage.setItem("sessionID", sessionID);
     // save the ID of the user
     socket.userID = userID;
-    setuserInfo({userID, username})
+    setuserInfo({ userID, username })
   });
 
   socket.on("connected-users", (data) => {
@@ -104,7 +107,7 @@ const Chatpage = () => {
       newArray = data?.filter(
         (obj) => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
-    }else{
+    } else {
       newArray = data?.filter(
         (obj) => obj?.user?.first_name?.toLowerCase() !== localStorage?.getItem('first_name')?.toLowerCase()
       );
@@ -143,9 +146,18 @@ const Chatpage = () => {
     setshowModal(true);
   };
 
-  const logout = () => { 
+  const logout = () => {
     localStorage.clear()
     navigate('/')
+  }
+
+  const handleButtonClick = () => {
+    setIsPickerVisible(!isPickerVisible);
+  };
+
+  const getEmoji = (data) => { 
+    console.log("data", data)
+    // setValue('messageBox', data?.emoji)
    }
 
   window.addEventListener("unload", function () {
@@ -171,9 +183,9 @@ const Chatpage = () => {
               </Col>
             </Row>
             <Row>
-              <Col className="name-title">{userInfo?.username}   
-                <i class="bi bi-box-arrow-left mx-2" onClick={logout} title="Logout" style={{cursor:"pointer"}}>
-                  </i> 
+              <Col className="name-title">{userInfo?.username}
+                <i class="bi bi-box-arrow-left mx-2" onClick={logout} title="Logout" style={{ cursor: "pointer" }}>
+                </i>
               </Col>
             </Row>
             <Row>
@@ -199,11 +211,11 @@ const Chatpage = () => {
                               alt="..."
                             />
                           </Col>
-                          <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }} 
-                          onClick={() => selectSocketId(ele)}>
+                          <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }}
+                            onClick={() => selectSocketId(ele)}>
                             <Row style={{ backgroundColor: "" }}>
                               <span className="chat-item-username">
-                                {ele?.user?.first_name} 
+                                {ele?.user?.first_name}
                               </span>
                             </Row>
                             {/* <Row style={{ backgroundColor: "" }}>
@@ -264,11 +276,13 @@ const Chatpage = () => {
                   <InfiniteScroll
                     className="infinte-scroll"
                     dataLength={data?.length}
-                  >
+                    >
                     <Row
                       className="chat-box"
                       style={{ backgroundColor: "", overflow: "" }}
-                    >
+                      >
+                      {isPickerVisible && <EmojiPicker searchDisabled={true} 
+                      onEmojiClick={(data)=>console.log(data)}/>}
                       {messages?.map((ele, i) => {
                         if (ele?.senderId === ownerInfo?.id) {
                           return (
@@ -288,7 +302,12 @@ const Chatpage = () => {
                   </InfiniteScroll>
                 </div>
                 <Row className="message-box" style={{ backgroundColor: "" }}>
-                  <Col lg={11}>
+                  <Col lg={0} style={{ width: "fit-content" }}>
+                    <i className="bi bi-emoji-smile" 
+                    style={{cursor:"pointer"}} 
+                    onClick={handleButtonClick}  />
+                  </Col>
+                  <Col lg={10}>
                     <Controller
                       control={control}
                       name="messageBox"
