@@ -1,6 +1,15 @@
 import "./Chatpage.scss";
 import React, { useEffect, useRef, useState } from "react";
-import {Col, Container, Row } from "react-bootstrap";
+import {
+  Button,
+  ButtonToolbar,
+  Col,
+  Container,
+  OverlayTrigger,
+  Popover,
+  Row,
+  Tooltip,
+} from "react-bootstrap";
 import Logo from "./../../Assest/Image/man.png";
 import User from "./../../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -14,10 +23,9 @@ import { setLoginLoader, setUserInfo } from "../Login/loginReducer.js";
 import socket from "../Socket.js/index.js";
 import { addMessages, setMessages } from "./ChatpageReducers.js";
 import { useNavigate } from "react-router-dom";
-import data from '@emoji-mart/data'
+import data from "@emoji-mart/data";
 import { Picker } from "emoji-mart";
 import EmojiPicker from "emoji-picker-react";
-
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -26,9 +34,9 @@ const Chatpage = () => {
   const { messages } = useSelector((state) => state.chat);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [userInfo, setuserInfo] = useState({})
+  const [userInfo, setuserInfo] = useState({});
   const [showModal, setshowModal] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const scrollContainerRef = useRef(null);
@@ -45,27 +53,26 @@ const Chatpage = () => {
   ]);
 
   useEffect(() => {
+    console.log("localstorage", localStorage.getItem("first_name"));
 
-    console.log("localstorage", localStorage.getItem('first_name'))
-
-    return () => {
-
-    }
-  }, [])
+    return () => {};
+  }, []);
 
   useEffect(() => {
     // if (ownerInfo != null) {
     const sessionID = localStorage.getItem("sessionID");
-    if (!sessionID) {
-      socket.auth = { ownerInfo }
-      socket.connect();
-    }
-    if (sessionID) {
-      socket.auth = { sessionID };
-      socket.connect();
+    if (!socket.connected) {
+      if (!sessionID) {
+        socket.auth = { ownerInfo };
+        socket.connect();
+      }
+      if (sessionID) {
+        socket.auth = { sessionID };
+        socket.connect();
+      }
     }
     // }
-    return () => { };
+    return () => {};
   }, [ownerInfo]);
 
   useEffect(() => {
@@ -73,7 +80,7 @@ const Chatpage = () => {
       console.log("private-message received", message);
       dispatch(addMessages(message));
     });
-    return () => { };
+    return () => {};
   }, [socket]);
 
   useEffect(() => {
@@ -85,10 +92,8 @@ const Chatpage = () => {
 
   useEffect(() => {
     console.log("Online users", onlineUsers);
-    return () => { };
+    return () => {};
   }, [onlineUsers]);
-  
-
 
   socket.on("session", ({ sessionID, userID, username }) => {
     // attach the session ID to the next reconnection attempts
@@ -97,7 +102,7 @@ const Chatpage = () => {
     localStorage.setItem("sessionID", sessionID);
     // save the ID of the user
     socket.userID = userID;
-    setuserInfo({ userID, username })
+    setuserInfo({ userID, username });
   });
 
   socket.on("connected-users", (data) => {
@@ -105,11 +110,14 @@ const Chatpage = () => {
     console.log("data", data);
     if (userName) {
       newArray = data?.filter(
-        (obj) => obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
+        (obj) =>
+          obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
     } else {
       newArray = data?.filter(
-        (obj) => obj?.user?.first_name?.toLowerCase() !== localStorage?.getItem('first_name')?.toLowerCase()
+        (obj) =>
+          obj?.user?.first_name?.toLowerCase() !==
+          localStorage?.getItem("first_name")?.toLowerCase()
       );
     }
     setOnlineUsers(newArray);
@@ -120,7 +128,6 @@ const Chatpage = () => {
       console.log("Invalid username");
     }
   });
-
 
   const onMessageSent = () => {
     const content = getValues("messageBox");
@@ -147,24 +154,38 @@ const Chatpage = () => {
   };
 
   const logout = () => {
-    localStorage.clear()
-    navigate('/')
-  }
+    localStorage.clear();
+    navigate("/");
+  };
 
   const handleButtonClick = () => {
     setIsPickerVisible(!isPickerVisible);
   };
 
-  const getEmoji = (data) => { 
-    console.log("data", data)
+  const getEmoji = (data) => {
+    console.log("data", data);
     // setValue('messageBox', data?.emoji)
-   }
+  };
+
+  const popoverTop = (
+    <Popover id="popover-positioned-top" title="Popover top">
+      <Controller
+        control={control}
+        name="messageBox"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <EmojiPicker
+            searchDisabled={true}
+            onEmojiClick={(data) => onChange(getValues('messageBox')+data.emoji)}
+            
+          />
+        )}
+      />
+    </Popover>
+  );
 
   window.addEventListener("unload", function () {
     socket.disconnect();
   });
-
-
 
   return (
     <div className="main">
@@ -183,9 +204,14 @@ const Chatpage = () => {
               </Col>
             </Row>
             <Row>
-              <Col className="name-title">{userInfo?.username}
-                <i class="bi bi-box-arrow-left mx-2" onClick={logout} title="Logout" style={{ cursor: "pointer" }}>
-                </i>
+              <Col className="name-title">
+                {userInfo?.username}
+                <i
+                  class="bi bi-box-arrow-left mx-2"
+                  onClick={logout}
+                  title="Logout"
+                  style={{ cursor: "pointer" }}
+                ></i>
               </Col>
             </Row>
             <Row>
@@ -204,15 +230,27 @@ const Chatpage = () => {
                     <Col className="chat-list-item" key={ele?.id}>
                       <div className="item-content">
                         <Row>
-                          <Col xs={2} sm={2} md="auto" lg={2} style={{ backgroundColor: "" }}>
+                          <Col
+                            xs={2}
+                            sm={2}
+                            md="auto"
+                            lg={2}
+                            style={{ backgroundColor: "" }}
+                          >
                             <img
                               src={User}
                               className="rounded-circle"
                               alt="..."
                             />
                           </Col>
-                          <Col xs={7} sm={8} md={7} lg={8} style={{ backgroundColor: "" }}
-                            onClick={() => selectSocketId(ele)}>
+                          <Col
+                            xs={7}
+                            sm={8}
+                            md={7}
+                            lg={8}
+                            style={{ backgroundColor: "" }}
+                            onClick={() => selectSocketId(ele)}
+                          >
                             <Row style={{ backgroundColor: "" }}>
                               <span className="chat-item-username">
                                 {ele?.user?.first_name}
@@ -249,14 +287,14 @@ const Chatpage = () => {
                       {!friendList?.some(
                         (item) => item.friend_id === selectedSocketId?.user?.id
                       ) && (
-                          <span
-                            className="mx-2"
-                            onClick={addFriend}
-                            style={{ cursor: "pointer" }}
-                          >
-                            <i className="bi bi-person-plus"></i>
-                          </span>
-                        )}{" "}
+                        <span
+                          className="mx-2"
+                          onClick={addFriend}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <i className="bi bi-person-plus"></i>
+                        </span>
+                      )}{" "}
                       <span> </span>
                     </Col>
                     <Col className="option-icon" md={2} lg={2}>
@@ -276,13 +314,11 @@ const Chatpage = () => {
                   <InfiniteScroll
                     className="infinte-scroll"
                     dataLength={data?.length}
-                    >
+                  >
                     <Row
                       className="chat-box"
                       style={{ backgroundColor: "", overflow: "" }}
-                      >
-                      {isPickerVisible && <EmojiPicker searchDisabled={true} 
-                      onEmojiClick={(data)=>console.log(data)}/>}
+                    >
                       {messages?.map((ele, i) => {
                         if (ele?.senderId === ownerInfo?.id) {
                           return (
@@ -302,10 +338,18 @@ const Chatpage = () => {
                   </InfiniteScroll>
                 </div>
                 <Row className="message-box" style={{ backgroundColor: "" }}>
-                  <Col lg={0} style={{ width: "fit-content" }}>
-                    <i className="bi bi-emoji-smile" 
-                    style={{cursor:"pointer"}} 
-                    onClick={handleButtonClick}  />
+                  <Col lg={1} style={{ width: "fit-content" }}>
+                    {/* <ButtonToolbar> */}
+                    <OverlayTrigger
+                      trigger="click"
+                      placement="top"
+                      overlay={popoverTop}
+                    >
+                      <i
+                        className="bi bi-emoji-smile"
+                        style={{ cursor: "pointer" }}
+                      />
+                    </OverlayTrigger>
                   </Col>
                   <Col lg={10}>
                     <Controller
