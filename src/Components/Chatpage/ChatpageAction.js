@@ -23,6 +23,7 @@ export const fetchMessages = (senderId, receiverId, dispatch) => {
       dispatch(setLoginLoader(false))
     }).catch((ex)=>{
       console.log(ex,"Error in fetchMessages")
+      dispatch(setLoginLoader(false))
     })
 
   }

@@ -42,8 +42,9 @@ export const Login = () => {
       .then((response) => {
         dispatch(setLoginLoader(false));
         if (response.status == 200) {
+          // console.log(response?.data)
           dispatch(setOwnerInfo(response?.data))
-          console.log("response", response?.data?.first_name)
+          console.log("response", response)
           localStorage.setItem('first_name', response?.data?.first_name)
           dispatch(setUsername(getValues("first_name")));
           navigate("/chat");

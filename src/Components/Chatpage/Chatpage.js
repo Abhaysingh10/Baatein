@@ -1,15 +1,6 @@
 import "./Chatpage.scss";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Button,
-  ButtonToolbar,
-  Col,
-  Container,
-  OverlayTrigger,
-  Popover,
-  Row,
-  Tooltip,
-} from "react-bootstrap";
+import { Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import Logo from "./../../Assest/Image/man.png";
 import User from "./../../Assest/Image/insta.png";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -17,15 +8,15 @@ import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import AddFriend from "../Modal/AddFriend/index.js";
-import { fetchMessages, getFriendsList } from "./ChatpageAction.js";
+import { fetchMessages } from "./ChatpageAction.js";
 import Loader from "../Loader/Loader.js";
-import { setLoginLoader, setUserInfo } from "../Login/loginReducer.js";
+import { setLoginLoader } from "../Login/loginReducer.js";
 import socket from "../Socket.js/index.js";
 import { addMessages, setMessages } from "./ChatpageReducers.js";
 import { useNavigate } from "react-router-dom";
-import data from "@emoji-mart/data";
-import { Picker } from "emoji-mart";
+import demoImage from "../../Assest/Image/_5ee00a37-e8c5-43ef-87cc-266c898af5f9.jpg";
 import EmojiPicker from "emoji-picker-react";
+import { setOwnerInfo } from "../../OwnerReducer.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -34,8 +25,9 @@ const Chatpage = () => {
   const { messages } = useSelector((state) => state.chat);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
-  const [userInfo, setuserInfo] = useState({});
+  const [userInfo, setuserInfo] = useState();
   const [showModal, setshowModal] = useState(false);
+  const [messageType, setmessageType] = useState("text");
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -59,7 +51,8 @@ const Chatpage = () => {
   }, []);
 
   useEffect(() => {
-    // if (ownerInfo != null) {
+    console.log("Owner Info", ownerInfo);
+
     const sessionID = localStorage.getItem("sessionID");
     if (!socket.connected) {
       if (!sessionID) {
@@ -71,7 +64,6 @@ const Chatpage = () => {
         socket.connect();
       }
     }
-    // }
     return () => {};
   }, [ownerInfo]);
 
@@ -80,7 +72,9 @@ const Chatpage = () => {
       console.log("private-message received", message);
       dispatch(addMessages(message));
     });
-    return () => {};
+    return () => {
+      socket.off("private-message-received");
+    };
   }, [socket]);
 
   useEffect(() => {
@@ -95,19 +89,17 @@ const Chatpage = () => {
     return () => {};
   }, [onlineUsers]);
 
-  socket.on("session", ({ sessionID, userID, username }) => {
-    // attach the session ID to the next reconnection attempts
+  socket.on("session", ({ sessionID, userID, username, ownerInfo }) => {
     socket.auth = { sessionID };
-    // store it in the localStorage
     localStorage.setItem("sessionID", sessionID);
-    // save the ID of the user
     socket.userID = userID;
     setuserInfo({ userID, username });
+    console.log("ownerInfo", ownerInfo);
+    dispatch(setOwnerInfo(ownerInfo));
   });
 
   socket.on("connected-users", (data) => {
     let newArray = [];
-    console.log("data", data);
     if (userName) {
       newArray = data?.filter(
         (obj) =>
@@ -137,8 +129,15 @@ const Chatpage = () => {
       to: recepientSocketId,
       senderId: ownerInfo?.id,
       receiverId: selectedSocketId?.user?.id,
+      messageType: messageType,
     });
-    dispatch(addMessages({ content: content, senderId: ownerInfo?.id }));
+    dispatch(
+      addMessages({
+        content: content,
+        senderId: ownerInfo?.id,
+        messageType: messageType,
+      })
+    );
     setValue("messageBox", "");
   };
 
@@ -175,8 +174,9 @@ const Chatpage = () => {
         render={({ field: { onChange, onBlur, value } }) => (
           <EmojiPicker
             searchDisabled={true}
-            onEmojiClick={(data) => onChange(getValues('messageBox')+data.emoji)}
-            
+            onEmojiClick={(data) =>
+              onChange(getValues("messageBox") + data.emoji)
+            }
           />
         )}
       />
@@ -205,7 +205,7 @@ const Chatpage = () => {
             </Row>
             <Row>
               <Col className="name-title">
-                {userInfo?.username}
+                {ownerInfo?.first_name}
                 <i
                   class="bi bi-box-arrow-left mx-2"
                   onClick={logout}
@@ -238,7 +238,7 @@ const Chatpage = () => {
                             style={{ backgroundColor: "" }}
                           >
                             <img
-                              src={User}
+                              src="https://api.dicebear.com/7.x/pixel-art/svg"
                               className="rounded-circle"
                               alt="..."
                             />
@@ -323,13 +323,55 @@ const Chatpage = () => {
                         if (ele?.senderId === ownerInfo?.id) {
                           return (
                             <div className="message-sent" key={i}>
-                              <span>{ele?.content}</span>
+                              {ele?.messageType === "text" && (
+                                <div className="message-content-parent">
+                                  <span className="text-message position-relative">
+                                    {ele?.content}
+                                    <div className="timestamp-parent" style={{backgroundColor:"red"}}>
+                                      <span className="timestamp position-absolute top-100 start-0 translate-middle">
+                                        6:45pm
+                                      </span>
+                                    </div>
+                                  </span>
+                                </div>
+                              )}
+                              {ele?.messageType === "image" && (
+                                <span>
+                                  {" "}
+                                  <img
+                                    src={demoImage}
+                                    style={{ width: "100%" }}
+                                    alt="img"
+                                  />{" "}
+                                </span>
+                              )}
                             </div>
                           );
                         } else {
                           return (
-                            <div className="message-received">
-                              <span>{ele?.content}</span>
+                            <div className="message-received" key={i}>
+                              {ele?.messageType === "text" && (
+                                <div className="message-content-parent">
+                                  <span className="text-message position-relative">
+                                    {ele?.content}
+                                    <div className="timestamp-parent" style={{backgroundColor:"red"}}>
+                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                      6:45pm
+                                    </span>
+                                      </div>
+                                  </span>
+                                </div>
+                              )}
+                              {ele?.messageType === "image" && (
+                                <span>
+                                  {" "}
+                                  <img
+                                    src={demoImage}
+                                    style={{ width: "100%" }}
+                                    alt="img"
+                                  />{" "}
+                                </span>
+                              )}
                             </div>
                           );
                         }
@@ -338,18 +380,28 @@ const Chatpage = () => {
                   </InfiniteScroll>
                 </div>
                 <Row className="message-box" style={{ backgroundColor: "" }}>
-                  <Col lg={1} style={{ width: "fit-content" }}>
+                  <Col lg={1} style={{ width: "" }}>
                     {/* <ButtonToolbar> */}
-                    <OverlayTrigger
-                      trigger="click"
-                      placement="top"
-                      overlay={popoverTop}
-                    >
-                      <i
-                        className="bi bi-emoji-smile"
-                        style={{ cursor: "pointer" }}
-                      />
-                    </OverlayTrigger>
+                    <div>
+                      <span style={{ marginRight: "5px" }}>
+                        <i
+                          className="bi bi-upload"
+                          style={{ cursor: "pointer" }}
+                        ></i>
+                      </span>
+                      <span className="" style={{ marginLeft: "2px" }}>
+                        <OverlayTrigger
+                          trigger="click"
+                          placement="top"
+                          overlay={popoverTop}
+                        >
+                          <i
+                            className="bi bi-emoji-smile"
+                            style={{ cursor: "pointer" }}
+                          />
+                        </OverlayTrigger>
+                      </span>
+                    </div>
                   </Col>
                   <Col lg={10}>
                     <Controller
@@ -359,7 +411,7 @@ const Chatpage = () => {
                         <input
                           color="white"
                           type="text"
-                          placeholder="Type your message here !"
+                          placeholder="Type a message"
                           onChange={onChange}
                           value={value}
                           onKeyDown={(e) => {
