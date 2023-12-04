@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom";
 import demoImage from "../../Assest/Image/_5ee00a37-e8c5-43ef-87cc-266c898af5f9.jpg";
 import EmojiPicker from "emoji-picker-react";
 import { setOwnerInfo } from "../../OwnerReducer.js";
+import { now } from "moment/moment.js";
+import MediaUpload from "../MediaUpload.js/index.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -28,8 +30,17 @@ const Chatpage = () => {
   const [userInfo, setuserInfo] = useState();
   const [showModal, setshowModal] = useState(false);
   const [messageType, setmessageType] = useState("text");
+  const hiddenFileInput = useRef(null);
+  const [show, setShow] = useState(false);
+  const [imgUrl, setimgUrl] = useState("");
+  const [fileDetails, setfileDetails] = useState();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const timeOptions = {
+    hour12: true,
+    hour: "numeric",
+    minute: "numeric",
+  };
 
   const scrollContainerRef = useRef(null);
 
@@ -70,6 +81,8 @@ const Chatpage = () => {
   useEffect(() => {
     socket.on("private-message-received", (message) => {
       console.log("private-message received", message);
+      if (message) {
+      }
       dispatch(addMessages(message));
     });
     return () => {
@@ -82,6 +95,7 @@ const Chatpage = () => {
       scrollContainerRef.current.scrollTop =
         scrollContainerRef?.current?.scrollHeight;
     }
+    console.log("message", messages);
   }, [messages]);
 
   useEffect(() => {
@@ -121,6 +135,19 @@ const Chatpage = () => {
     }
   });
 
+  const handleClick = (event) => {
+    hiddenFileInput.current.click();
+  };
+
+  const handleChange = (event) => {
+    const fileUploaded = event.target.files[0];
+    console.log("fileUploaded", fileUploaded);
+    fileUploaded && setfileDetails(fileUploaded);
+    fileUploaded && setimgUrl(URL.createObjectURL(fileUploaded));
+    fileUploaded && setShow(true);
+    // handleFile(fileUploaded);
+  };
+
   const onMessageSent = () => {
     const content = getValues("messageBox");
     const recepientSocketId = selectedSocketId?.userID;
@@ -130,12 +157,14 @@ const Chatpage = () => {
       senderId: ownerInfo?.id,
       receiverId: selectedSocketId?.user?.id,
       messageType: messageType,
+      timestamp: Date.now(),
     });
     dispatch(
       addMessages({
         content: content,
         senderId: ownerInfo?.id,
         messageType: messageType,
+        timestamp: Date.now(),
       })
     );
     setValue("messageBox", "");
@@ -327,23 +356,40 @@ const Chatpage = () => {
                                 <div className="message-content-parent">
                                   <span className="text-message position-relative">
                                     {ele?.content}
-                                    <div className="timestamp-parent" style={{backgroundColor:"red"}}>
-                                      <span className="timestamp position-absolute top-100 start-0 translate-middle">
-                                        6:45pm
+                                    <div
+                                      className="timestamp-parent"
+                                      style={{ backgroundColor: "red" }}
+                                    >
+                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                        {new Date(ele?.timestamp)
+                                          .toLocaleString("en-US", timeOptions)
+                                          .replace(/\s/g, "")}
                                       </span>
                                     </div>
                                   </span>
                                 </div>
                               )}
                               {ele?.messageType === "image" && (
-                                <span>
-                                  {" "}
-                                  <img
-                                    src={demoImage}
-                                    style={{ width: "100%" }}
-                                    alt="img"
-                                  />{" "}
-                                </span>
+                                <div className="message-content-parent">
+                                  <span className="text-message position-relative">
+                                    <img
+                                      src={ele?.content}
+                                      style={{ width: "100%", borderRadius:"10px 10px 0px 10px", cursor:"pointer" }}
+                                      alt="img"
+
+                                    />
+                                    <div
+                                      className="timestamp-parent"
+                                      style={{ backgroundColor: "red" }}
+                                    >
+                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                        {new Date(ele?.timestamp)
+                                          .toLocaleString("en-US", timeOptions)
+                                          .replace(/\s/g, "")}
+                                      </span>
+                                    </div>
+                                  </span>
+                                </div>
                               )}
                             </div>
                           );
@@ -354,23 +400,39 @@ const Chatpage = () => {
                                 <div className="message-content-parent">
                                   <span className="text-message position-relative">
                                     {ele?.content}
-                                    <div className="timestamp-parent" style={{backgroundColor:"red"}}>
+                                    <div
+                                      className="timestamp-parent"
+                                      style={{ backgroundColor: "red" }}
+                                    >
                                       <span className="timestamp position-absolute top-100 start-100 translate-middle">
-                                      6:45pm
-                                    </span>
-                                      </div>
+                                        {new Date(ele?.timestamp)
+                                          .toLocaleString("en-US", timeOptions)
+                                          .replace(/\s/g, "")}
+                                      </span>
+                                    </div>
                                   </span>
                                 </div>
                               )}
                               {ele?.messageType === "image" && (
-                                <span>
-                                  {" "}
+                                <div className="message-content-parent">
+                                <span className="text-message position-relative" style={{}}>
                                   <img
-                                    src={demoImage}
-                                    style={{ width: "100%" }}
+                                    src={window.URL.createObjectURL(new Blob([ele?.content]))}
+                                    style={{ width: "100%", borderRadius:"10px 15px 15px 0px", cursor:"pointer" }}
                                     alt="img"
-                                  />{" "}
+                                  />
+                                  <div
+                                    className="timestamp-parent"
+                                    style={{ backgroundColor: "red" }}
+                                  >
+                                    <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                      {new Date(ele?.timestamp)
+                                        .toLocaleString("en-US", timeOptions)
+                                        .replace(/\s/g, "")}
+                                    </span>
+                                  </div>
                                 </span>
+                              </div>
                               )}
                             </div>
                           );
@@ -383,11 +445,21 @@ const Chatpage = () => {
                   <Col lg={1} style={{ width: "" }}>
                     {/* <ButtonToolbar> */}
                     <div>
-                      <span style={{ marginRight: "5px" }}>
+                      <span style={{ marginRight: "0px" }}>
                         <i
                           className="bi bi-upload"
                           style={{ cursor: "pointer" }}
-                        ></i>
+                          onClick={handleClick}
+                        >
+                          {" "}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleChange}
+                            ref={hiddenFileInput}
+                            style={{ display: "none" }} // Make the file input element invisible
+                          />{" "}
+                        </i>
                       </span>
                       <span className="" style={{ marginLeft: "2px" }}>
                         <OverlayTrigger
@@ -443,6 +515,14 @@ const Chatpage = () => {
         />
       </Container>
       {loginLoading && <Loader />}
+      <MediaUpload
+        setShow={setShow}
+        show={show}
+        imgUrl={imgUrl}
+        socket={socket}
+        fileDetails={fileDetails}
+        selectedSocketId={selectedSocketId}
+      />
     </div>
   );
 };

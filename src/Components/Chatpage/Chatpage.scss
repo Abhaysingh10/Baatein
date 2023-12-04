@@ -11,7 +11,7 @@
   background-color: rgb(71, 49, 19);
   background: #000428;
   /* fallback for old browsers */
-  background: -webkit-linear-gradient(to left, #004e92, #000428);
+  // background: -webkit-linear-gradient(to left, #004e92, #000428);
   /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to left, #004e92, #000428);
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
@@ -189,7 +189,7 @@
 
           .message-content-parent {
             .text-message {
-              max-height: 35px;
+              // max-height: 35px;
               float: left;
               font-size: smaller;
               width: fit-content;
@@ -197,9 +197,11 @@
               min-width: 40px;
               padding: 7px;
               border-radius: 15px 15px 15px 0px;
+              border: 2px solid rgb(55, 149, 236);
               background-color: rgb(91, 175, 224);
               color: black;
               direction: ltr;
+              padding-right: 20px !important;
             }
             .timestamp-parent {
               background-color: red !important;
@@ -207,10 +209,11 @@
                 color: rgb(0, 0, 0);
                 width: fit-content !important;
                 font-size: xx-small;
-                // margin-left: 20px !important;
                 padding: 3px;
                 border-radius: 20px;
                 background-color: rgb(91, 175, 224);
+                // border: 1px solid rgb(22, 0, 0);
+                margin-left: 10px;
               }
             }
           }
@@ -228,10 +231,12 @@
               min-width: 40px;
               padding: 7px;
               border-radius: 15px 15px 0px 15px;
+              border: 2px solid rgba(69, 67, 163, 0.466);
               background-color: #91b4df;
               color: black;
               direction: ltr;
-              //   margin-left: 20px !important;
+              padding-right: 20px !important;
+              // margin-right: 50px !important;
             }
             .timestamp-parent {
               .timestamp {
@@ -240,8 +245,8 @@
                 font-size: xx-small;
                 padding: 3px;
                 border-radius: 20px;
+                // border: 1px solid rgb(22, 0, 0);
                 background-color: #91b4df;
-                // margin-right: 50px !important;
               }
             }
           }
