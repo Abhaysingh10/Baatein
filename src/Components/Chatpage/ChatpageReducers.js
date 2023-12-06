@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 const initialState = {
-    messages:[]
+    messages:[],
+    totalCount: null
 }
 
 export const chatSlice = createSlice({
@@ -14,11 +15,15 @@ export const chatSlice = createSlice({
         addMessages:(state, action)=>{
             // console.log("action.payload", action.payload)
             state.messages = [...state.messages, action.payload]
+        },
+        setMsgTotalCount:(state, action)=>{
+            // console.log(action.payload)
+            state.totalCount = action.payload
         }
 
     }
 })
 
-export const { setMessages, addMessages } = chatSlice.actions
+export const { setMessages, addMessages, setMsgTotalCount } = chatSlice.actions
 
 export default chatSlice.reducer

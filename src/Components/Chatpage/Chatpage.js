@@ -19,12 +19,14 @@ import EmojiPicker from "emoji-picker-react";
 import { setOwnerInfo } from "../../OwnerReducer.js";
 import { now } from "moment/moment.js";
 import MediaUpload from "../MediaUpload.js/index.js";
+import { chat_limit, offset } from "../Misc/Constant.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
+  const [selectedIndex, setselectedIndex] = useState()
   const { ownerInfo, friendList } = useSelector((state) => state.ownerInfo);
   const { loginLoading, userName } = useSelector((state) => state.login);
-  const { messages } = useSelector((state) => state.chat);
+  const { messages, totalCount } = useSelector((state) => state.chat);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [userInfo, setuserInfo] = useState();
@@ -34,6 +36,7 @@ const Chatpage = () => {
   const [show, setShow] = useState(false);
   const [imgUrl, setimgUrl] = useState("");
   const [fileDetails, setfileDetails] = useState();
+  const [chatIndex, setchatIndex] = useState([])
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const timeOptions = {
@@ -56,13 +59,16 @@ const Chatpage = () => {
   ]);
 
   useEffect(() => {
-    console.log("localstorage", localStorage.getItem("first_name"));
+    const chat_index = localStorage.getItem("chat_index");
+    console.log("chatIndex",chatIndex)
+    chat_index && setOnlineUsers(JSON.parse(chat_index))
+    
 
     return () => {};
   }, []);
 
   useEffect(() => {
-    console.log("Owner Info", ownerInfo);
+    // console.log("Owner Info", ownerInfo);
 
     const sessionID = localStorage.getItem("sessionID");
     if (!socket.connected) {
@@ -80,7 +86,6 @@ const Chatpage = () => {
 
   useEffect(() => {
     socket.on("private-message-received", (message) => {
-      console.log("private-message received", message);
       if (message) {
       }
       dispatch(addMessages(message));
@@ -92,8 +97,8 @@ const Chatpage = () => {
 
   useEffect(() => {
     if (scrollContainerRef?.current) {
-      scrollContainerRef.current.scrollTop =
-        scrollContainerRef?.current?.scrollHeight;
+      // scrollContainerRef.current.scrollTop =
+      //   scrollContainerRef?.current?.scrollHeight;
     }
     console.log("message", messages);
   }, [messages]);
@@ -119,6 +124,7 @@ const Chatpage = () => {
         (obj) =>
           obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
+      
     } else {
       newArray = data?.filter(
         (obj) =>
@@ -127,11 +133,15 @@ const Chatpage = () => {
       );
     }
     setOnlineUsers(newArray);
+    console.log("new Array", newArray)
+    console.log("new Array", data)
+    newArray?.length > 0 && localStorage.setItem("chat_index",JSON.stringify(newArray))
+    
   });
 
   socket.on("connect_error", (err) => {
     if (err.message === "Invalid owner information.") {
-      console.log("Invalid username");
+      // console.log("Invalid username");
     }
   });
 
@@ -168,12 +178,33 @@ const Chatpage = () => {
       })
     );
     setValue("messageBox", "");
+    moveItemToStart(onlineUsers, chatIndex);
+
   };
 
-  const selectSocketId = (ele) => {
+  function moveItemToStart(array, n) {
+    // Check if the provided index is within the array bounds
+    if (n < 0 || n >= array.length) {
+      console.error("Invalid index provided for moving.");
+      return array;
+    }
+  
+    // Remove the nth item and store it
+    const removedItem = array.splice(n, 1)[0];
+  
+    // Add the removed item to the beginning of the array
+    array.unshift(removedItem);
+  
+    setOnlineUsers(array)
+    localStorage.setItem('chat_index', JSON.stringify(array))
+  };
+
+  const selectSocketId = (ele, i) => {
+    setchatIndex(i)
     dispatch(setLoginLoader(true));
     setselectedSocketId(ele);
-    fetchMessages(ownerInfo?.id, ele?.user?.id, dispatch);
+    fetchMessages(ownerInfo?.id, ele?.user?.id, chat_limit, offset , dispatch);
+    
   };
 
   const addFriend = (ele) => {
@@ -182,6 +213,8 @@ const Chatpage = () => {
   };
 
   const logout = () => {
+    socket.disconnect()
+    console.log("called")
     localStorage.clear();
     navigate("/");
   };
@@ -216,6 +249,12 @@ const Chatpage = () => {
     socket.disconnect();
   });
 
+  const fetchMoreData = () => { 
+    console.log("fetched more triggered")
+    fetchMessages(ownerInfo?.id, selectedSocketId?.user?.id, chat_limit, messages?.length , dispatch);
+   }
+
+
   return (
     <div className="main">
       <Container className="container-div" key={1}>
@@ -236,7 +275,7 @@ const Chatpage = () => {
               <Col className="name-title">
                 {ownerInfo?.first_name}
                 <i
-                  class="bi bi-box-arrow-left mx-2"
+                  className="bi bi-box-arrow-left mx-2"
                   onClick={logout}
                   title="Logout"
                   style={{ cursor: "pointer" }}
@@ -278,8 +317,7 @@ const Chatpage = () => {
                             md={7}
                             lg={8}
                             style={{ backgroundColor: "" }}
-                            onClick={() => selectSocketId(ele)}
-                          >
+                            onClick={() => selectSocketId(ele, i)}>
                             <Row style={{ backgroundColor: "" }}>
                               <span className="chat-item-username">
                                 {ele?.user?.first_name}
@@ -341,8 +379,14 @@ const Chatpage = () => {
                   }}
                 >
                   <InfiniteScroll
+                    inverse={true}
+                    dataLength={messages && messages?.length}
+                    hasMore={!(totalCount == messages?.length)}
+                    next={fetchMoreData}
+                    height="calc(100vh - 180px)"
                     className="infinte-scroll"
-                    dataLength={data?.length}
+                    loader={<span className=""> Loading... </span>}
+                    style={{display:"flex", flexDirection:"column-reverse"}}
                   >
                     <Row
                       className="chat-box"

@@ -1,6 +1,6 @@
 import axios from "axios"
 import { setFriendList } from "../../OwnerReducer"
-import { setMessages } from "./ChatpageReducers"
+import { setMessages, setMsgTotalCount } from "./ChatpageReducers"
 import { setLoginLoader } from "../Login/loginReducer"
 
 export const getFriendsList = (id, dispatch) => {
@@ -14,12 +14,15 @@ export const getFriendsList = (id, dispatch) => {
     })
   }
 
-export const fetchMessages = (senderId, receiverId, dispatch) => {
+export const fetchMessages = (senderId, receiverId, chat_limit, offset, dispatch) => {
     axios.post('http://localhost:3000/fetch-messages', {
       senderId:senderId,
-      receiverId:receiverId
+      receiverId:receiverId,
+      limit:chat_limit, 
+      offset:offset
     }).then((respone)=>{
-      dispatch(setMessages(respone?.data))
+      dispatch(setMessages(respone?.data?.message))
+      dispatch(setMsgTotalCount(respone?.data?.totalCount))
       dispatch(setLoginLoader(false))
     }).catch((ex)=>{
       console.log(ex,"Error in fetchMessages")
