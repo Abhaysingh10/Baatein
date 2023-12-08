@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { message } from "antd"
 
 const initialState = {
     messages:[],
@@ -19,11 +20,14 @@ export const chatSlice = createSlice({
         setMsgTotalCount:(state, action)=>{
             // console.log(action.payload)
             state.totalCount = action.payload
+        },
+        updateMessages:(state, action)=>{
+            state.messages = [ ...action.payload, ...state.messages]
         }
 
     }
 })
 
-export const { setMessages, addMessages, setMsgTotalCount } = chatSlice.actions
+export const { setMessages, addMessages, setMsgTotalCount, updateMessages } = chatSlice.actions
 
 export default chatSlice.reducer

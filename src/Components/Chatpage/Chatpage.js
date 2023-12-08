@@ -20,6 +20,8 @@ import { setOwnerInfo } from "../../OwnerReducer.js";
 import { now } from "moment/moment.js";
 import MediaUpload from "../MediaUpload.js/index.js";
 import { chat_limit, offset } from "../Misc/Constant.js";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -60,9 +62,9 @@ const Chatpage = () => {
 
   useEffect(() => {
     const chat_index = localStorage.getItem("chat_index");
-    console.log("chatIndex",chatIndex)
+    const owner_info = localStorage.getItem("owner_info")
     chat_index && setOnlineUsers(JSON.parse(chat_index))
-    
+    owner_info && dispatch(setOwnerInfo(JSON.parse(owner_info)))
 
     return () => {};
   }, []);
@@ -86,9 +88,12 @@ const Chatpage = () => {
 
   useEffect(() => {
     socket.on("private-message-received", (message) => {
-      if (message) {
+      console.log("private-message-received", message)
+      console.log("nbhgfcvbn", selectedSocketId)
+      if (selectedSocketId?.user?.id == message?.senderId) {
+        dispatch(addMessages(message));
       }
-      dispatch(addMessages(message));
+      toast.success(message?.content)
     });
     return () => {
       socket.off("private-message-received");
@@ -100,11 +105,10 @@ const Chatpage = () => {
       // scrollContainerRef.current.scrollTop =
       //   scrollContainerRef?.current?.scrollHeight;
     }
-    console.log("message", messages);
   }, [messages]);
 
   useEffect(() => {
-    console.log("Online users", onlineUsers);
+    // console.log("Online users", onlineUsers);
     return () => {};
   }, [onlineUsers]);
 
@@ -133,8 +137,8 @@ const Chatpage = () => {
       );
     }
     setOnlineUsers(newArray);
-    console.log("new Array", newArray)
-    console.log("new Array", data)
+    // console.log("new Array", newArray)
+    // console.log("new Array", data)
     newArray?.length > 0 && localStorage.setItem("chat_index",JSON.stringify(newArray))
     
   });
@@ -251,8 +255,18 @@ const Chatpage = () => {
 
   const fetchMoreData = () => { 
     console.log("fetched more triggered")
-    fetchMessages(ownerInfo?.id, selectedSocketId?.user?.id, chat_limit, messages?.length , dispatch);
+    fetchMessages(ownerInfo?.id, selectedSocketId?.user?.id, chat_limit, messages?.length , dispatch, true);
    }
+
+   useEffect(() => {
+
+    console.log(selectedSocketId)
+   
+     return () => {
+       
+     }
+   }, [selectedSocketId])
+   
 
 
   return (
@@ -567,6 +581,7 @@ const Chatpage = () => {
         fileDetails={fileDetails}
         selectedSocketId={selectedSocketId}
       />
+      <ToastContainer/>
     </div>
   );
 };

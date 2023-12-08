@@ -1,6 +1,6 @@
 import axios from "axios"
 import { setFriendList } from "../../OwnerReducer"
-import { setMessages, setMsgTotalCount } from "./ChatpageReducers"
+import { setMessages, setMsgTotalCount, updateMessages } from "./ChatpageReducers"
 import { setLoginLoader } from "../Login/loginReducer"
 
 export const getFriendsList = (id, dispatch) => {
@@ -14,14 +14,18 @@ export const getFriendsList = (id, dispatch) => {
     })
   }
 
-export const fetchMessages = (senderId, receiverId, chat_limit, offset, dispatch) => {
+export const fetchMessages = (senderId, receiverId, chat_limit, offset, dispatch, update=false) => {
     axios.post('http://localhost:3000/fetch-messages', {
       senderId:senderId,
       receiverId:receiverId,
       limit:chat_limit, 
       offset:offset
     }).then((respone)=>{
-      dispatch(setMessages(respone?.data?.message))
+      if (update) {
+        dispatch(updateMessages((respone.data?.message)?.reverse()))
+      }else{
+        dispatch(setMessages((respone?.data?.message)?.reverse()))
+      }
       dispatch(setMsgTotalCount(respone?.data?.totalCount))
       dispatch(setLoginLoader(false))
     }).catch((ex)=>{
