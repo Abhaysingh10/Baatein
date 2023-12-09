@@ -1,27 +1,24 @@
 import "./Chatpage.scss";
+import "react-perfect-scrollbar/dist/css/styles.css";
+import 'react-toastify/dist/ReactToastify.css';
 import React, { useEffect, useRef, useState } from "react";
 import { Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
-import Logo from "./../../Assest/Image/man.png";
-import User from "./../../Assest/Image/insta.png";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import "react-perfect-scrollbar/dist/css/styles.css";
-import AddFriend from "../Modal/AddFriend/index.js";
 import { fetchMessages } from "./ChatpageAction.js";
-import Loader from "../Loader/Loader.js";
 import { setLoginLoader } from "../Login/loginReducer.js";
-import socket from "../Socket.js/index.js";
-import { addMessages, setMessages } from "./ChatpageReducers.js";
+import { addMessages } from "./ChatpageReducers.js";
 import { useNavigate } from "react-router-dom";
-import demoImage from "../../Assest/Image/_5ee00a37-e8c5-43ef-87cc-266c898af5f9.jpg";
-import EmojiPicker from "emoji-picker-react";
 import { setOwnerInfo } from "../../OwnerReducer.js";
-import { now } from "moment/moment.js";
-import MediaUpload from "../MediaUpload.js/index.js";
 import { chat_limit, offset } from "../Misc/Constant.js";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import Logo from "./../../Assest/Image/man.png";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Loader from "../Loader/Loader.js";
+import socket from "../Socket.js/index.js";
+import EmojiPicker from "emoji-picker-react";
+import AddFriend from "../Modal/AddFriend/index.js";
+import MediaUpload from "../MediaUpload.js/index.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -89,7 +86,6 @@ const Chatpage = () => {
   useEffect(() => {
     socket.on("private-message-received", (message) => {
       console.log("private-message-received", message)
-      console.log("nbhgfcvbn", selectedSocketId)
       if (selectedSocketId?.user?.id == message?.senderId) {
         dispatch(addMessages(message));
       }
@@ -108,7 +104,7 @@ const Chatpage = () => {
   }, [messages]);
 
   useEffect(() => {
-    // console.log("Online users", onlineUsers);
+    console.log("Online users", onlineUsers);
     return () => {};
   }, [onlineUsers]);
 
@@ -183,7 +179,7 @@ const Chatpage = () => {
     );
     setValue("messageBox", "");
     moveItemToStart(onlineUsers, chatIndex);
-
+    console.log("recepientSocketId",selectedSocketId?.user.id)
   };
 
   function moveItemToStart(array, n) {
@@ -225,11 +221,6 @@ const Chatpage = () => {
 
   const handleButtonClick = () => {
     setIsPickerVisible(!isPickerVisible);
-  };
-
-  const getEmoji = (data) => {
-    console.log("data", data);
-    // setValue('messageBox', data?.emoji)
   };
 
   const popoverTop = (
@@ -337,9 +328,9 @@ const Chatpage = () => {
                                 {ele?.user?.first_name}
                               </span>
                             </Row>
-                            {/* <Row style={{ backgroundColor: "" }}>
-                              <span className="chat-details font-weight-light"> {messages && messages[messages?.length-1]?.content}</span>
-                            </Row> */}
+                            <Row style={{ backgroundColor: "" }}>
+                              <span className="chat-details font-weight-light fs-9" style={{color:"grey"}}> messages && messages[messages?.length-1]?.content</span>
+                            </Row>
                           </Col>
                           <Col
                             xs={3}
@@ -348,7 +339,7 @@ const Chatpage = () => {
                             lg={2}
                             style={{ backgroundColor: "" }}
                           >
-                            {/* <span className="date-time">{new Date(messageLog[messageLog?.length-1]?.msgDateTime).toLocaleTimeString()}</span> */}
+                            <span className="date-time">{new Date(Date.now()).toLocaleString("en-US", timeOptions).replace(/\s/g, "")}</span>
                           </Col>
                         </Row>
                       </div>
