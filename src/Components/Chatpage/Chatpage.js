@@ -262,9 +262,9 @@ const Chatpage = () => {
 
   return (
     <div className="main">
-      <Container className="container-div" key={1}>
+      <Container className="container-div" key={1} style={{backgroundColor:""}}>
         <Row className="my-2" key={1}>
-          <Col lg={4} className="chat-list ">
+          <Col xxl={4} xl={4} lg={4} md={4} className="d-none d-md-block chat-list">
             <Row>
               <Col className="logo">
                 <img
@@ -350,8 +350,8 @@ const Chatpage = () => {
             </div>
           </Col>
           {selectedSocketId && (
-            <Col lg={8}>
-              <div className="chat-window">
+            <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="">
+              <div className="chat-window" >
                 <div className="header">
                   <Row className="header-row">
                     <Col md={10} lg={10} className="chat-window-header">
@@ -490,10 +490,11 @@ const Chatpage = () => {
                     </Row>
                   </InfiniteScroll>
                 </div>
-                <Row className="message-box" style={{ backgroundColor: "" }}>
-                  <Col lg={1} style={{ width: "" }}>
+                <Row className="message-box p-0" style={{ backgroundColor: "" }}>
+                  <Col lg={1} md={1} sm={2} xs={2} className="p-0" style={{ width: "", backgroundColor: ""  }}>
                     {/* <ButtonToolbar> */}
-                    <div>
+                    <div className="p-0" 
+                    style={{backgroundColor:"", display:"flex", justifyContent:"space-around"}}>
                       <span style={{ marginRight: "0px" }}>
                         <i
                           className="bi bi-upload"
@@ -524,7 +525,7 @@ const Chatpage = () => {
                       </span>
                     </div>
                   </Col>
-                  <Col lg={10}>
+                  <Col className="p-0" lg={10} md={10} sm={9} xs={9}  style={{backgroundColor: "" }}>
                     <Controller
                       control={control}
                       name="messageBox"
@@ -545,7 +546,7 @@ const Chatpage = () => {
                     />
                   </Col>
 
-                  <Col lg={1}>
+                  <Col lg={1}  md={1} sm={1} xs={1} style={{backgroundColor: "" }}>
                     <i
                       className="bi bi-send"
                       style={{ cursor: "pointer", color: "white" }}
