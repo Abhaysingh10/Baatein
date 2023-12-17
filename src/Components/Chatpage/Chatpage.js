@@ -350,11 +350,11 @@ const Chatpage = () => {
             </div>
           </Col>
           {selectedSocketId && (
-            <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="">
+            <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="" >
               <div className="chat-window" >
                 <div className="header">
                   <Row className="header-row">
-                    <Col md={10} lg={10} className="chat-window-header">
+                    <Col xs={9} sm={9} md={9} lg={9} className="chat-window-header">
                       {selectedSocketId?.user?.first_name}{" "}
                       {!friendList?.some(
                         (item) => item.friend_id === selectedSocketId?.user?.id
@@ -369,8 +369,8 @@ const Chatpage = () => {
                       )}{" "}
                       <span> </span>
                     </Col>
-                    <Col className="option-icon" md={2} lg={2}>
-                      <i className="bi bi-three-dots-vertical mx-4"></i>
+                    <Col className="option-icon" xs={3} sm={3} md={3} lg={3} >
+                      <i className="bi bi-three-dots-vertical mx-2"></i>
                       <i className="bi bi-camera-video"></i>
                     </Col>
                   </Row>

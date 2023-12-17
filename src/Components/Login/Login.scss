@@ -19,17 +19,16 @@
         border-radius: 10px;
         box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px 0px, rgba(0, 0, 0, 0.22) 0px 15px 12px 0px;
         transition: 0.1s linear;
-
+        backdrop-filter: blur(15px);
         .login-page-form {
-            background-color: rgba(82, 128, 158, 0.398);
-            // width: 50vw;
+            // background-color: rgba(82, 128, 158, 0.398);
+            // background-color: rgba(49, 138, 197, 0.151);
             height: 80vh;
             @include center();
-            border-radius: 10px 0px 0px 10px;
-            backdrop-filter: blur(15px);
+            border-radius: 10px 10px 10px 10px;
 
             .credential-box {
-                background-color: rgba(197, 130, 43, 0);
+                // background-color: rgba(197, 130, 43, 0);
                 height: 150px;
                 // width: 70%;
                 @include center();
@@ -142,13 +141,12 @@
 
 
 
-@media only screen and (min-width: 576px) {
+@media only screen and (max-width: 576px) {
     
-   
 
-    .main-container {
-        // background-color: rgb(230, 182, 173);
-    }
+    // .main-container {
+    //     background-color: rgb(219, 46, 15);
+    // }
 }
 
 @media only screen and (max-width: 768px) {
