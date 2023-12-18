@@ -19,10 +19,11 @@ import socket from "../Socket.js/index.js";
 import EmojiPicker from "emoji-picker-react";
 import AddFriend from "../Modal/AddFriend/index.js";
 import MediaUpload from "../MediaUpload.js/index.js";
+import { VideoScreen } from "../Modal/AddFriend/VideoScreen/index.js";
+import { modalAction } from "../Modal/modalReducer.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
-  const [selectedIndex, setselectedIndex] = useState()
   const { ownerInfo, friendList } = useSelector((state) => state.ownerInfo);
   const { loginLoading, userName } = useSelector((state) => state.login);
   const { messages, totalCount } = useSelector((state) => state.chat);
@@ -86,6 +87,7 @@ const Chatpage = () => {
   useEffect(() => {
     socket.on("private-message-received", (message) => {
       console.log("private-message-received", message)
+      console.log(selectedSocketId?.user?.id, message?.senderId)
       if (selectedSocketId?.user?.id == message?.senderId) {
         dispatch(addMessages(message));
       }
@@ -244,6 +246,10 @@ const Chatpage = () => {
     socket.disconnect();
   });
 
+  const videoCall = () => { 
+    dispatch(modalAction({name:"videoCallModal", val:true}))
+   }
+
   const fetchMoreData = () => { 
     console.log("fetched more triggered")
     fetchMessages(ownerInfo?.id, selectedSocketId?.user?.id, chat_limit, messages?.length , dispatch, true);
@@ -261,7 +267,10 @@ const Chatpage = () => {
 
 
   return (
-    <div className="main">
+    <>
+      <VideoScreen/>
+
+    <div className="main" style={{backgroundColor:""}}>
       <Container className="container-div" key={1} style={{backgroundColor:""}}>
         <Row className="my-2" key={1}>
           <Col xxl={4} xl={4} lg={4} md={4} className="d-none d-md-block chat-list">
@@ -349,7 +358,7 @@ const Chatpage = () => {
               </InfiniteScroll>
             </div>
           </Col>
-          {selectedSocketId && (
+          {selectedSocketId ? (
             <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="" >
               <div className="chat-window" >
                 <div className="header">
@@ -371,7 +380,7 @@ const Chatpage = () => {
                     </Col>
                     <Col className="option-icon" xs={3} sm={3} md={3} lg={3} >
                       <i className="bi bi-three-dots-vertical mx-2"></i>
-                      <i className="bi bi-camera-video"></i>
+                      <i className="bi bi-camera-video" style={{cursor:"pointer"}} onClick={videoCall}></i>
                     </Col>
                   </Row>
                 </div>
@@ -556,13 +565,12 @@ const Chatpage = () => {
                 </Row>
               </div>
             </Col>
-          )}
+          ) : <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="" style={{height:"",backgroundColor:""}}> 
+            <div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"100%", backgroundColor:""}}>
+              <p className="fs-3" style={{color:""}}>Your messages goes here</p>
+              </div>
+           </Col>}
         </Row>
-        <AddFriend
-          showModal={showModal}
-          setshowModal={setshowModal}
-          friend_id={selectedSocketId?.user?.id}
-        />
       </Container>
       {loginLoading && <Loader />}
       <MediaUpload
@@ -574,7 +582,13 @@ const Chatpage = () => {
         selectedSocketId={selectedSocketId}
       />
       <ToastContainer/>
+      <AddFriend
+        showModal={showModal}
+        setshowModal={setshowModal}
+        friend_id={selectedSocketId?.user?.id}
+      />
     </div>
+    </>
   );
 };
 

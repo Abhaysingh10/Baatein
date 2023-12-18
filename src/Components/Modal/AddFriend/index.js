@@ -27,8 +27,8 @@ const AddFriend = (prop) => {
       }
     return (
         <div
-            className="modal show"
-            style={{ display: 'block', position: 'initial' }}
+            // className="modal show"
+            // style={{ display: 'block', position: 'initial' }}
         >
             <Modal show={showModal} onHide={handleClose} centered>
                 <Modal.Header closeButton>

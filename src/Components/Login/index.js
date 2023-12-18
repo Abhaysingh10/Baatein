@@ -93,10 +93,10 @@ export const Login = () => {
     <div className="main">
       <div className="main-container">
         <Row>
-          <Col className="login-page-form" xs={12} sm={12} md={12} lg={12} xxl={12}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+          <Col className="login-page-form"  xs={12} sm={12} md={12} lg={12} xxl={12}>
+            <form onSubmit={handleSubmit(onSubmit)} >
               {/* <div> */}
-              <div className="credential-box p-5" style={{}}>
+              <div className="credential-box p-5" >
                 <div className="logo">
                   <Image src={Logo}></Image>
                 </div>
