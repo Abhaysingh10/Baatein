@@ -1,13 +1,13 @@
 import "./Chatpage.scss";
 import "react-perfect-scrollbar/dist/css/styles.css";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import React, { useEffect, useRef, useState } from "react";
 import { Col, Container, OverlayTrigger, Popover, Row } from "react-bootstrap";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMessages } from "./ChatpageAction.js";
 import { setLoginLoader } from "../Login/loginReducer.js";
-import { addMessages } from "./ChatpageReducers.js";
+import { addMessages, setActiveChat } from "./ChatpageReducers.js";
 import { useNavigate } from "react-router-dom";
 import { setOwnerInfo } from "../../OwnerReducer.js";
 import { chat_limit, offset } from "../Misc/Constant.js";
@@ -19,14 +19,17 @@ import socket from "../Socket.js/index.js";
 import EmojiPicker from "emoji-picker-react";
 import AddFriend from "../Modal/AddFriend/index.js";
 import MediaUpload from "../MediaUpload.js/index.js";
-import { VideoScreen } from "../Modal/AddFriend/VideoScreen/index.js";
+import  VideoScreen  from "../Modal/VideoScreen/index.js";
 import { modalAction } from "../Modal/modalReducer.js";
+import { setSocketInstance } from "../Socket.js/SocketReducer.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
   const { ownerInfo, friendList } = useSelector((state) => state.ownerInfo);
   const { loginLoading, userName } = useSelector((state) => state.login);
-  const { messages, totalCount } = useSelector((state) => state.chat);
+  const { messages, totalCount, activeChat } = useSelector(
+    (state) => state.chat
+  );
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [userInfo, setuserInfo] = useState();
@@ -36,7 +39,7 @@ const Chatpage = () => {
   const [show, setShow] = useState(false);
   const [imgUrl, setimgUrl] = useState("");
   const [fileDetails, setfileDetails] = useState();
-  const [chatIndex, setchatIndex] = useState([])
+  const [chatIndex, setchatIndex] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const timeOptions = {
@@ -60,11 +63,11 @@ const Chatpage = () => {
 
   useEffect(() => {
     const chat_index = localStorage.getItem("chat_index");
-    const owner_info = localStorage.getItem("owner_info")
-    chat_index && setOnlineUsers(JSON.parse(chat_index))
-    owner_info && dispatch(setOwnerInfo(JSON.parse(owner_info)))
+    const owner_info = localStorage.getItem("owner_info");
+    chat_index && setOnlineUsers(JSON.parse(chat_index));
+    owner_info && dispatch(setOwnerInfo(JSON.parse(owner_info)));
 
-    return () => {};
+    return () => { };
   }, []);
 
   useEffect(() => {
@@ -75,28 +78,40 @@ const Chatpage = () => {
       if (!sessionID) {
         socket.auth = { ownerInfo };
         socket.connect();
+        dispatch(setSocketInstance(socket))
       }
       if (sessionID) {
         socket.auth = { sessionID };
         socket.connect();
+        dispatch(setSocketInstance(socket))
       }
     }
-    return () => {};
+    return () => { };
   }, [ownerInfo]);
 
   useEffect(() => {
     socket.on("private-message-received", (message) => {
-      console.log("private-message-received", message)
-      console.log(selectedSocketId?.user?.id, message?.senderId)
-      if (selectedSocketId?.user?.id == message?.senderId) {
+      // console.log("private-message-received", message);
+      console.log(activeChat?.user?.id, message?.senderId);
+      if (activeChat?.user?.id == message?.senderId) {
         dispatch(addMessages(message));
       }
-      toast.success(message?.content)
+      toast.success(message?.content);
     });
+
+    socket.on('offer', (offer, socketId)=>{
+      console.log("offer", offer)
+      console.log("socketId", socketId)
+
+    dispatch(modalAction({ name: "videoCallModal", val: true }));
+
+    })
     return () => {
       socket.off("private-message-received");
     };
   }, [socket]);
+
+  // console.log("selectedSocketId", selectedSocketId);
 
   useEffect(() => {
     if (scrollContainerRef?.current) {
@@ -106,8 +121,8 @@ const Chatpage = () => {
   }, [messages]);
 
   useEffect(() => {
-    console.log("Online users", onlineUsers);
-    return () => {};
+    // console.log("Online users", onlineUsers);
+    return () => { };
   }, [onlineUsers]);
 
   socket.on("session", ({ sessionID, userID, username, ownerInfo }) => {
@@ -126,7 +141,6 @@ const Chatpage = () => {
         (obj) =>
           obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
-      
     } else {
       newArray = data?.filter(
         (obj) =>
@@ -137,8 +151,8 @@ const Chatpage = () => {
     setOnlineUsers(newArray);
     // console.log("new Array", newArray)
     // console.log("new Array", data)
-    newArray?.length > 0 && localStorage.setItem("chat_index",JSON.stringify(newArray))
-    
+    newArray?.length > 0 &&
+      localStorage.setItem("chat_index", JSON.stringify(newArray));
   });
 
   socket.on("connect_error", (err) => {
@@ -146,6 +160,8 @@ const Chatpage = () => {
       // console.log("Invalid username");
     }
   });
+
+
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
@@ -159,6 +175,8 @@ const Chatpage = () => {
     fileUploaded && setShow(true);
     // handleFile(fileUploaded);
   };
+
+  // console.log("ownerInfo", ownerInfo);
 
   const onMessageSent = () => {
     const content = getValues("messageBox");
@@ -181,7 +199,7 @@ const Chatpage = () => {
     );
     setValue("messageBox", "");
     moveItemToStart(onlineUsers, chatIndex);
-    console.log("recepientSocketId",selectedSocketId?.user.id)
+    console.log("recepientSocketId", selectedSocketId?.user.id);
   };
 
   function moveItemToStart(array, n) {
@@ -190,23 +208,22 @@ const Chatpage = () => {
       console.error("Invalid index provided for moving.");
       return array;
     }
-  
+
     // Remove the nth item and store it
     const removedItem = array.splice(n, 1)[0];
-  
+
     // Add the removed item to the beginning of the array
     array.unshift(removedItem);
-  
-    setOnlineUsers(array)
-    localStorage.setItem('chat_index', JSON.stringify(array))
-  };
+
+    setOnlineUsers(array);
+    localStorage.setItem("chat_index", JSON.stringify(array));
+  }
 
   const selectSocketId = (ele, i) => {
-    setchatIndex(i)
+    setchatIndex(i);
     dispatch(setLoginLoader(true));
     setselectedSocketId(ele);
-    fetchMessages(ownerInfo?.id, ele?.user?.id, chat_limit, offset , dispatch);
-    
+    fetchMessages(ownerInfo?.id, ele?.user?.id, chat_limit, offset, dispatch);
   };
 
   const addFriend = (ele) => {
@@ -215,8 +232,8 @@ const Chatpage = () => {
   };
 
   const logout = () => {
-    socket.disconnect()
-    console.log("called")
+    socket.disconnect();
+    console.log("called");
     localStorage.clear();
     navigate("/");
   };
@@ -246,348 +263,465 @@ const Chatpage = () => {
     socket.disconnect();
   });
 
-  const videoCall = () => { 
-    dispatch(modalAction({name:"videoCallModal", val:true}))
-   }
+  const videoCall = () => {
+    dispatch(modalAction({ name: "videoCallModal", val: true }));
+  };
 
-  const fetchMoreData = () => { 
-    console.log("fetched more triggered")
-    fetchMessages(ownerInfo?.id, selectedSocketId?.user?.id, chat_limit, messages?.length , dispatch, true);
-   }
+  const fetchMoreData = () => {
+    console.log("fetched more triggered");
+    fetchMessages(
+      ownerInfo?.id,
+      selectedSocketId?.user?.id,
+      chat_limit,
+      messages?.length,
+      dispatch,
+      true
+    );
+  };
 
-   useEffect(() => {
+  useEffect(() => {
+    // console.log(selectedSocketId);
+    return () => { };
+  }, [selectedSocketId]);
 
-    console.log(selectedSocketId)
-   
-     return () => {
-       
-     }
-   }, [selectedSocketId])
-   
-
+  console.log("Inside 2",socket.connected)
 
   return (
     <>
-      <VideoScreen/>
 
-    <div className="main" style={{backgroundColor:""}}>
-      <Container className="container-div" key={1} style={{backgroundColor:""}}>
-        <Row className="my-2" key={1}>
-          <Col xxl={4} xl={4} lg={4} md={4} className="d-none d-md-block chat-list">
-            <Row>
-              <Col className="logo">
-                <img
-                  className="rounded-circle"
-                  src={Logo}
-                  width={"80px"}
-                  height={"80px"}
-                  alt="profile"
-                />
-              </Col>
-            </Row>
-            <Row>
-              <Col className="name-title">
-                {ownerInfo?.first_name}
-                <i
-                  className="bi bi-box-arrow-left mx-2"
-                  onClick={logout}
-                  title="Logout"
-                  style={{ cursor: "pointer" }}
-                ></i>
-              </Col>
-            </Row>
-            <Row>
-              <Col className="search-chat">
-                <input type="text" placeholder="Search chat " />
-              </Col>
-            </Row>
-            <div className="infinite-scroll">
-              <InfiniteScroll
-                dataLength={data?.length}
-                height={"calc(100vh - 300px)"}
-                style={{ scrollbarWidth: "none" }}
-              >
-                {onlineUsers?.map((ele, i) => {
-                  return (
-                    <Col className="chat-list-item" key={ele?.id}>
-                      <div className="item-content">
-                        <Row>
-                          <Col
-                            xs={2}
-                            sm={2}
-                            md="auto"
-                            lg={2}
-                            style={{ backgroundColor: "" }}
-                          >
-                            <img
-                              src="https://api.dicebear.com/7.x/pixel-art/svg"
-                              className="rounded-circle"
-                              alt="..."
-                            />
-                          </Col>
-                          <Col
-                            xs={7}
-                            sm={8}
-                            md={7}
-                            lg={8}
-                            style={{ backgroundColor: "" }}
-                            onClick={() => selectSocketId(ele, i)}>
-                            <Row style={{ backgroundColor: "" }}>
-                              <span className="chat-item-username">
-                                {ele?.user?.first_name}
+      <div className="main" style={{ backgroundColor: "" }}>
+        <Container
+          className="container-div"
+          key={1}
+          style={{ backgroundColor: "" }}
+        >
+          <Row className="my-2" key={1}>
+            <Col
+              xxl={4}
+              xl={4}
+              lg={4}
+              md={4}
+              className="d-none d-md-block chat-list"
+            >
+              <Row>
+                <Col className="logo">
+                  <img
+                    className="rounded-circle"
+                    src={Logo}
+                    width={"80px"}
+                    height={"80px"}
+                    alt="profile"
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Col className="name-title">
+                  {ownerInfo?.first_name}
+                  <i
+                    className="bi bi-box-arrow-left mx-2"
+                    onClick={logout}
+                    title="Logout"
+                    style={{ cursor: "pointer" }}
+                  ></i>
+                </Col>
+              </Row>
+              <Row>
+                <Col className="search-chat">
+                  <input type="text" placeholder="Search chat " />
+                </Col>
+              </Row>
+              <div className="infinite-scroll">
+                <InfiniteScroll
+                  dataLength={data?.length}
+                  height={"calc(100vh - 300px)"}
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {onlineUsers?.map((ele, i) => {
+                    return (
+                      <Col className="chat-list-item" key={ele?.id}>
+                        <div className="item-content">
+                          <Row>
+                            <Col
+                              xs={2}
+                              sm={2}
+                              md="auto"
+                              lg={2}
+                              style={{ backgroundColor: "" }}
+                            >
+                              <img
+                                src="https://api.dicebear.com/7.x/pixel-art/svg"
+                                className="rounded-circle"
+                                alt="..."
+                              />
+                            </Col>
+                            <Col
+                              xs={7}
+                              sm={8}
+                              md={7}
+                              lg={8}
+                              style={{ backgroundColor: "" }}
+                              onClick={() => {
+                                dispatch(setActiveChat(ele));
+                                selectSocketId(ele, i)
+                              }}
+                            >
+                              <Row style={{ backgroundColor: "" }}>
+                                <span className="chat-item-username">
+                                  {ele?.user?.first_name}
+                                </span>
+                              </Row>
+                              <Row style={{ backgroundColor: "" }}>
+                                <span
+                                  className="chat-details font-weight-light fs-9"
+                                  style={{ color: "grey" }}
+                                >
+                                  {" "}
+                                  messages &&
+                                  messages[messages?.length-1]?.content
+                                </span>
+                              </Row>
+                            </Col>
+                            <Col
+                              xs={3}
+                              sm={2}
+                              md={2}
+                              lg={2}
+                              style={{ backgroundColor: "" }}
+                            >
+                              <span className="date-time">
+                                {new Date(Date.now())
+                                  .toLocaleString("en-US", timeOptions)
+                                  .replace(/\s/g, "")}
                               </span>
-                            </Row>
-                            <Row style={{ backgroundColor: "" }}>
-                              <span className="chat-details font-weight-light fs-9" style={{color:"grey"}}> messages && messages[messages?.length-1]?.content</span>
-                            </Row>
-                          </Col>
-                          <Col
-                            xs={3}
-                            sm={2}
-                            md={2}
-                            lg={2}
-                            style={{ backgroundColor: "" }}
+                            </Col>
+                          </Row>
+                        </div>
+                      </Col>
+                    );
+                  })}
+                </InfiniteScroll>
+              </div>
+            </Col>
+            {selectedSocketId ? (
+              <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="">
+                <div className="chat-window">
+                  <div className="header">
+                    <Row className="header-row">
+                      <Col
+                        xs={9}
+                        sm={9}
+                        md={9}
+                        lg={9}
+                        className="chat-window-header"
+                      >
+                        {selectedSocketId?.user?.first_name}{" "}
+                        {!friendList?.some(
+                          (item) =>
+                            item.friend_id === selectedSocketId?.user?.id
+                        ) && (
+                            <span
+                              className="mx-2"
+                              onClick={addFriend}
+                              style={{ cursor: "pointer" }}
+                            >
+                              <i className="bi bi-person-plus"></i>
+                            </span>
+                          )}{" "}
+                        <span> </span>
+                      </Col>
+                      <Col className="option-icon" xs={3} sm={3} md={3} lg={3}>
+                        <i className="bi bi-three-dots-vertical mx-2"></i>
+                        <i
+                          className="bi bi-camera-video"
+                          style={{ cursor: "pointer" }}
+                          onClick={()=>{videoCall()}}
+                        ></i>
+                      </Col>
+                    </Row>
+                  </div>
+                  <div
+                    ref={scrollContainerRef}
+                    style={{
+                      overflowY: "auto",
+                      height: "calc(100vh - 180px)",
+                      marginBottom: "5px",
+                    }}
+                  >
+                    <InfiniteScroll
+                      inverse={true}
+                      dataLength={messages && messages?.length}
+                      hasMore={!(totalCount == messages?.length)}
+                      next={fetchMoreData}
+                      height="calc(100vh - 180px)"
+                      className="infinte-scroll"
+                      loader={<span className=""> Loading... </span>}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column-reverse",
+                      }}
+                    >
+                      <Row
+                        className="chat-box"
+                        style={{ backgroundColor: "", overflow: "" }}
+                      >
+                        {messages?.map((ele, i) => {
+                          if (ele?.senderId === ownerInfo?.id) {
+                            return (
+                              <div className="message-sent" key={i}>
+                                {ele?.messageType === "text" && (
+                                  <div className="message-content-parent">
+                                    <span className="text-message position-relative">
+                                      {ele?.content}
+                                      <div
+                                        className="timestamp-parent"
+                                        style={{ backgroundColor: "red" }}
+                                      >
+                                        <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                          {new Date(ele?.timestamp)
+                                            .toLocaleString(
+                                              "en-US",
+                                              timeOptions
+                                            )
+                                            .replace(/\s/g, "")}
+                                        </span>
+                                      </div>
+                                    </span>
+                                  </div>
+                                )}
+                                {ele?.messageType === "image" && (
+                                  <div className="message-content-parent">
+                                    <span className="text-message position-relative">
+                                      <img
+                                        src={ele?.content}
+                                        style={{
+                                          width: "100%",
+                                          borderRadius: "10px 10px 0px 10px",
+                                          cursor: "pointer",
+                                        }}
+                                        alt="img"
+                                      />
+                                      <div
+                                        className="timestamp-parent"
+                                        style={{ backgroundColor: "red" }}
+                                      >
+                                        <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                          {new Date(ele?.timestamp)
+                                            .toLocaleString(
+                                              "en-US",
+                                              timeOptions
+                                            )
+                                            .replace(/\s/g, "")}
+                                        </span>
+                                      </div>
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className="message-received" key={i}>
+                                {ele?.messageType === "text" && (
+                                  <div className="message-content-parent">
+                                    <span className="text-message position-relative">
+                                      {ele?.content}
+                                      <div
+                                        className="timestamp-parent"
+                                        style={{ backgroundColor: "red" }}
+                                      >
+                                        <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                          {new Date(ele?.timestamp)
+                                            .toLocaleString(
+                                              "en-US",
+                                              timeOptions
+                                            )
+                                            .replace(/\s/g, "")}
+                                        </span>
+                                      </div>
+                                    </span>
+                                  </div>
+                                )}
+                                {ele?.messageType === "image" && (
+                                  <div className="message-content-parent">
+                                    <span
+                                      className="text-message position-relative"
+                                      style={{}}
+                                    >
+                                      <img
+                                        src={window.URL.createObjectURL(
+                                          new Blob([ele?.content])
+                                        )}
+                                        style={{
+                                          width: "100%",
+                                          borderRadius: "10px 15px 15px 0px",
+                                          cursor: "pointer",
+                                        }}
+                                        alt="img"
+                                      />
+                                      <div
+                                        className="timestamp-parent"
+                                        style={{ backgroundColor: "red" }}
+                                      >
+                                        <span className="timestamp position-absolute top-100 start-100 translate-middle">
+                                          {new Date(ele?.timestamp)
+                                            .toLocaleString(
+                                              "en-US",
+                                              timeOptions
+                                            )
+                                            .replace(/\s/g, "")}
+                                        </span>
+                                      </div>
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          }
+                        })}
+                      </Row>
+                    </InfiniteScroll>
+                  </div>
+                  <Row
+                    className="message-box p-0"
+                    style={{ backgroundColor: "" }}
+                  >
+                    <Col
+                      lg={1}
+                      md={1}
+                      sm={2}
+                      xs={2}
+                      className="p-0"
+                      style={{ width: "", backgroundColor: "" }}
+                    >
+                      {/* <ButtonToolbar> */}
+                      <div
+                        className="p-0"
+                        style={{
+                          backgroundColor: "",
+                          display: "flex",
+                          justifyContent: "space-around",
+                        }}
+                      >
+                        <span style={{ marginRight: "0px" }}>
+                          <i
+                            className="bi bi-upload"
+                            style={{ cursor: "pointer" }}
+                            onClick={handleClick}
                           >
-                            <span className="date-time">{new Date(Date.now()).toLocaleString("en-US", timeOptions).replace(/\s/g, "")}</span>
-                          </Col>
-                        </Row>
+                            {" "}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleChange}
+                              ref={hiddenFileInput}
+                              style={{ display: "none" }} // Make the file input element invisible
+                            />{" "}
+                          </i>
+                        </span>
+                        <span className="" style={{ marginLeft: "2px" }}>
+                          <OverlayTrigger
+                            trigger="click"
+                            placement="top"
+                            overlay={popoverTop}
+                          >
+                            <i
+                              className="bi bi-emoji-smile"
+                              style={{ cursor: "pointer" }}
+                            />
+                          </OverlayTrigger>
+                        </span>
                       </div>
                     </Col>
-                  );
-                })}
-              </InfiniteScroll>
-            </div>
-          </Col>
-          {selectedSocketId ? (
-            <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="" >
-              <div className="chat-window" >
-                <div className="header">
-                  <Row className="header-row">
-                    <Col xs={9} sm={9} md={9} lg={9} className="chat-window-header">
-                      {selectedSocketId?.user?.first_name}{" "}
-                      {!friendList?.some(
-                        (item) => item.friend_id === selectedSocketId?.user?.id
-                      ) && (
-                        <span
-                          className="mx-2"
-                          onClick={addFriend}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <i className="bi bi-person-plus"></i>
-                        </span>
-                      )}{" "}
-                      <span> </span>
+                    <Col
+                      className="p-0"
+                      lg={10}
+                      md={10}
+                      sm={9}
+                      xs={9}
+                      style={{ backgroundColor: "" }}
+                    >
+                      <Controller
+                        control={control}
+                        name="messageBox"
+                        render={({ field: { onChange, onBlur, value } }) => (
+                          <input
+                            color="white"
+                            type="text"
+                            placeholder="Type a message"
+                            onChange={onChange}
+                            value={value}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                onMessageSent();
+                              }
+                            }}
+                          />
+                        )}
+                      />
                     </Col>
-                    <Col className="option-icon" xs={3} sm={3} md={3} lg={3} >
-                      <i className="bi bi-three-dots-vertical mx-2"></i>
-                      <i className="bi bi-camera-video" style={{cursor:"pointer"}} onClick={videoCall}></i>
+
+                    <Col
+                      lg={1}
+                      md={1}
+                      sm={1}
+                      xs={1}
+                      style={{ backgroundColor: "" }}
+                    >
+                      <i
+                        className="bi bi-send"
+                        style={{ cursor: "pointer", color: "white" }}
+                        onClick={onMessageSent}
+                      ></i>
                     </Col>
                   </Row>
                 </div>
+              </Col>
+            ) : (
+              <Col
+                xxl={8}
+                xl={8}
+                lg={8}
+                md={8}
+                sm={12}
+                xs={12}
+                className=""
+                style={{ height: "", backgroundColor: "" }}
+              >
                 <div
-                  ref={scrollContainerRef}
                   style={{
-                    overflowY: "auto",
-                    height: "calc(100vh - 180px)",
-                    marginBottom: "5px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "100%",
+                    backgroundColor: "",
                   }}
                 >
-                  <InfiniteScroll
-                    inverse={true}
-                    dataLength={messages && messages?.length}
-                    hasMore={!(totalCount == messages?.length)}
-                    next={fetchMoreData}
-                    height="calc(100vh - 180px)"
-                    className="infinte-scroll"
-                    loader={<span className=""> Loading... </span>}
-                    style={{display:"flex", flexDirection:"column-reverse"}}
-                  >
-                    <Row
-                      className="chat-box"
-                      style={{ backgroundColor: "", overflow: "" }}
-                    >
-                      {messages?.map((ele, i) => {
-                        if (ele?.senderId === ownerInfo?.id) {
-                          return (
-                            <div className="message-sent" key={i}>
-                              {ele?.messageType === "text" && (
-                                <div className="message-content-parent">
-                                  <span className="text-message position-relative">
-                                    {ele?.content}
-                                    <div
-                                      className="timestamp-parent"
-                                      style={{ backgroundColor: "red" }}
-                                    >
-                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
-                                        {new Date(ele?.timestamp)
-                                          .toLocaleString("en-US", timeOptions)
-                                          .replace(/\s/g, "")}
-                                      </span>
-                                    </div>
-                                  </span>
-                                </div>
-                              )}
-                              {ele?.messageType === "image" && (
-                                <div className="message-content-parent">
-                                  <span className="text-message position-relative">
-                                    <img
-                                      src={ele?.content}
-                                      style={{ width: "100%", borderRadius:"10px 10px 0px 10px", cursor:"pointer" }}
-                                      alt="img"
-
-                                    />
-                                    <div
-                                      className="timestamp-parent"
-                                      style={{ backgroundColor: "red" }}
-                                    >
-                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
-                                        {new Date(ele?.timestamp)
-                                          .toLocaleString("en-US", timeOptions)
-                                          .replace(/\s/g, "")}
-                                      </span>
-                                    </div>
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <div className="message-received" key={i}>
-                              {ele?.messageType === "text" && (
-                                <div className="message-content-parent">
-                                  <span className="text-message position-relative">
-                                    {ele?.content}
-                                    <div
-                                      className="timestamp-parent"
-                                      style={{ backgroundColor: "red" }}
-                                    >
-                                      <span className="timestamp position-absolute top-100 start-100 translate-middle">
-                                        {new Date(ele?.timestamp)
-                                          .toLocaleString("en-US", timeOptions)
-                                          .replace(/\s/g, "")}
-                                      </span>
-                                    </div>
-                                  </span>
-                                </div>
-                              )}
-                              {ele?.messageType === "image" && (
-                                <div className="message-content-parent">
-                                <span className="text-message position-relative" style={{}}>
-                                  <img
-                                    src={window.URL.createObjectURL(new Blob([ele?.content]))}
-                                    style={{ width: "100%", borderRadius:"10px 15px 15px 0px", cursor:"pointer" }}
-                                    alt="img"
-                                  />
-                                  <div
-                                    className="timestamp-parent"
-                                    style={{ backgroundColor: "red" }}
-                                  >
-                                    <span className="timestamp position-absolute top-100 start-100 translate-middle">
-                                      {new Date(ele?.timestamp)
-                                        .toLocaleString("en-US", timeOptions)
-                                        .replace(/\s/g, "")}
-                                    </span>
-                                  </div>
-                                </span>
-                              </div>
-                              )}
-                            </div>
-                          );
-                        }
-                      })}
-                    </Row>
-                  </InfiniteScroll>
+                  <p className="fs-3" style={{ color: "" }}>
+                    Your messages goes here
+                  </p>
                 </div>
-                <Row className="message-box p-0" style={{ backgroundColor: "" }}>
-                  <Col lg={1} md={1} sm={2} xs={2} className="p-0" style={{ width: "", backgroundColor: ""  }}>
-                    {/* <ButtonToolbar> */}
-                    <div className="p-0" 
-                    style={{backgroundColor:"", display:"flex", justifyContent:"space-around"}}>
-                      <span style={{ marginRight: "0px" }}>
-                        <i
-                          className="bi bi-upload"
-                          style={{ cursor: "pointer" }}
-                          onClick={handleClick}
-                        >
-                          {" "}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleChange}
-                            ref={hiddenFileInput}
-                            style={{ display: "none" }} // Make the file input element invisible
-                          />{" "}
-                        </i>
-                      </span>
-                      <span className="" style={{ marginLeft: "2px" }}>
-                        <OverlayTrigger
-                          trigger="click"
-                          placement="top"
-                          overlay={popoverTop}
-                        >
-                          <i
-                            className="bi bi-emoji-smile"
-                            style={{ cursor: "pointer" }}
-                          />
-                        </OverlayTrigger>
-                      </span>
-                    </div>
-                  </Col>
-                  <Col className="p-0" lg={10} md={10} sm={9} xs={9}  style={{backgroundColor: "" }}>
-                    <Controller
-                      control={control}
-                      name="messageBox"
-                      render={({ field: { onChange, onBlur, value } }) => (
-                        <input
-                          color="white"
-                          type="text"
-                          placeholder="Type a message"
-                          onChange={onChange}
-                          value={value}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              onMessageSent();
-                            }
-                          }}
-                        />
-                      )}
-                    />
-                  </Col>
-
-                  <Col lg={1}  md={1} sm={1} xs={1} style={{backgroundColor: "" }}>
-                    <i
-                      className="bi bi-send"
-                      style={{ cursor: "pointer", color: "white" }}
-                      onClick={onMessageSent}
-                    ></i>
-                  </Col>
-                </Row>
-              </div>
-            </Col>
-          ) : <Col xxl={8} xl={8} lg={8} md={8} sm={12} xs={12} className="" style={{height:"",backgroundColor:""}}> 
-            <div style={{display:"flex", justifyContent:"center", alignItems:"center", height:"100%", backgroundColor:""}}>
-              <p className="fs-3" style={{color:""}}>Your messages goes here</p>
-              </div>
-           </Col>}
-        </Row>
-      </Container>
-      {loginLoading && <Loader />}
-      <MediaUpload
-        setShow={setShow}
-        show={show}
-        imgUrl={imgUrl}
-        socket={socket}
-        fileDetails={fileDetails}
-        selectedSocketId={selectedSocketId}
-      />
-      <ToastContainer/>
-      <AddFriend
-        showModal={showModal}
-        setshowModal={setshowModal}
-        friend_id={selectedSocketId?.user?.id}
-      />
-    </div>
+              </Col>
+            )}
+          </Row>
+        </Container>
+        {loginLoading && <Loader />}
+        <MediaUpload
+          setShow={setShow}
+          show={show}
+          imgUrl={imgUrl}
+          socket={socket}
+          fileDetails={fileDetails}
+          selectedSocketId={selectedSocketId}
+        />
+        <ToastContainer />
+        <AddFriend
+          showModal={showModal}
+          setshowModal={setshowModal}
+          friend_id={selectedSocketId?.user?.id}
+        />
+        
+      </div>
+      <VideoScreen  />
     </>
   );
 };

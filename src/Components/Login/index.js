@@ -1,7 +1,6 @@
 import "./Login.scss";
 import React from "react";
 import { Col, Image, Row } from "react-bootstrap";
-import Banner from "./../../Assest/Image/banner.jpg";
 import Logo from "./../../Assest/Image/Logo.png";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -73,6 +72,9 @@ export const Login = () => {
         console.log("data",data)
         if (data?.status ===  204) {
           toast.error("User already exit !")
+        }
+        if (data?.status===200) {
+            toast.success(data?.data)
         }
       })
       .catch((ex) => {
