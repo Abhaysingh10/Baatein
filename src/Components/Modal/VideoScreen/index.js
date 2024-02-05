@@ -4,14 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { modalAction } from "../modalReducer.js";
 // import ReactPlayer from "react-player";
 
-const VideoScreen = () => {
+const VideoScreen = ({socket}) => {
   const { videoCallModal } = useSelector((state) => state.modal);
   const { activeChat } = useSelector(state => state.chat);
-  const { socketInstance  } = useSelector(state => state.socketInstance) 
   const dispatch = useDispatch();
-  // const [localStream, setLocalStream] = useState(null);
-  // const [remoteStream, setRemoteStream] = useState(null);
-  // const [peerConnection, setPeerConnection] = useState(null);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -19,7 +15,7 @@ const VideoScreen = () => {
   const handleClose = (second) => {
     dispatch(modalAction({ name: "videoCallModal", val: false }));
   };
-  console.log("Inside",socketInstance?.connected)
+  console.log("Inside",socket?.connected)
   useEffect(() => {
 
     // Get local media stream (video and audio)
@@ -43,38 +39,35 @@ const VideoScreen = () => {
         }
 
         if (true) {
-          console.log("Inside create offer", socketInstance?.connected)
+          console.log("Inside create offer", socket?.connected)
           const offer = await peerConnection.createOffer();
           await peerConnection.setLocalDescription(offer);
-          socketInstance?.emit('offer', offer, activeChat)
+          socket?.emit('offer', offer, activeChat)
         }
-        
-      
       }
-      
       initWebRTC()
 
     }
 
 
     // Listen for WebRTC signaling events
-    socketInstance?.on('offer', (offer, targetsocketId) => {
+    socket?.on('offer', (offer, targetsocketId) => {
       // Handle offer and create answer
       // (use peerConnection.setRemoteDescription, createAnswer, etc.)
     });
 
-    socketInstance?.on('answer', (answer) => {
+    socket?.on('answer', (answer) => {
       // Handle answer (use peerConnection.setRemoteDescription)
     });
 
-    socketInstance?.on('ice-candidate', (candidate) => {
+    socket?.on('ice-candidate', (candidate) => {
       // Handle ICE candidate (use peerConnection.addIceCandidate)
     });
 
     return () => {
-      socketInstance?.disconnect();
+      socket?.disconnect();
     };
-  }, [videoCallModal, activeChat, socketInstance]);
+  }, [videoCallModal]);
 
 
   return (
