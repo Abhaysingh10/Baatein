@@ -15,7 +15,7 @@ Welcome to my real-time chat application built using React, Node.js, and MongoDB
 
 - Frontend: React, Redux, CSS
 - Backend: Node.js, Express.js
-- Database: MongoDB (using Mongoose)
+- Database: SQL
 - Real-Time Communication: WebSocket (Socket.io)
 - Authentication: JSON Web Tokens (JWT)
 - Deployment: Heroku (for demo purposes)
