@@ -20,7 +20,9 @@ import EmojiPicker from "emoji-picker-react";
 import AddFriend from "../Modal/AddFriend/index.js";
 import MediaUpload from "../MediaUpload.js/index.js";
 import { modalAction } from "../Modal/modalReducer.js";
-import { setSocketInstance } from "../Socket.js/SocketReducer.js";
+import VideoCall from "../VideoCall.js";
+import CallNotification from "../Modal/CallNotification.js";
+import { setOfferSdp } from "../videoCallReducer.js";
 
 const Chatpage = () => {
   const [selectedSocketId, setselectedSocketId] = useState(null);
@@ -30,9 +32,6 @@ const Chatpage = () => {
     (state) => state.chat
   );
   const { videoCallModal } = useSelector((state) => state.modal);
-  const [videoModal, setVideoModal] = useState(false)
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [userInfo, setuserInfo] = useState();
@@ -81,12 +80,12 @@ const Chatpage = () => {
       if (!sessionID) {
         socket.auth = { ownerInfo };
         socket.connect();
-        dispatch(setSocketInstance(socket))
+        // dispatch(setSocketInstance(socket))
       }
       if (sessionID) {
         socket.auth = { sessionID };
         socket.connect();
-        dispatch(setSocketInstance(socket))
+        // dispatch(setSocketInstance(socket))
       }
     }
     return () => { };
@@ -105,8 +104,7 @@ const Chatpage = () => {
     socket.on('offer', (offer, socketId)=>{
       console.log("offer", offer)
       console.log("socketId", socketId)
-
-    dispatch(modalAction({ name: "videoCallModal", val: true }));
+      dispatch(modalAction({ name: "videoCallModal", val: true }));
 
     })
     return () => {
@@ -144,6 +142,7 @@ const Chatpage = () => {
         (obj) =>
           obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
+      
     } else {
       newArray = data?.filter(
         (obj) =>
@@ -164,7 +163,12 @@ const Chatpage = () => {
     }
   });
 
-
+  socket.on("offerVideo", data => {
+    if (data?.offer?.type == 'offer') {
+      dispatch(setOfferSdp(data))
+      dispatch(modalAction({ name: "callNotification", val: true }));
+    }
+  })
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
@@ -265,8 +269,8 @@ const Chatpage = () => {
   });
 
   const videoCall = () => {
-    // dispatch(modalAction({ name: "videoCallModal", val: true }));
-    setVideoModal(state => !state)
+    dispatch(modalAction({ name: "videoCallModal", val: true }));
+    // setVideoModal(state => !state)
 
   };
 
@@ -282,71 +286,19 @@ const Chatpage = () => {
     );
   };
 
-  useEffect(() => {
-
-    // Get local media stream (video and audio)
-    if (videoCallModal) {
-      const initWebRTC = async() =>{
-        const stream = await navigator.mediaDevices.getUserMedia({video:true, audio:false})
-        // setLocalStream(stream)
-        localVideoRef.current.srcObject = stream
-        const configuration = {iceServers:[{  urls : 'stun:stun.l.google.com:19302'}]}
-        const peerConnection = new RTCPeerConnection(configuration)
-
-        peerConnection.onicecandidate = (event) =>{
-          if (event.candidate) {
-            
-          }
-        }
-
-        peerConnection.ontrack = (event)=>{
-          // setRemoteStream(event.streams[0]);
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-
-        if (true) {
-          console.log("Inside create offer", socket?.connected)
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-          socket?.emit('offer', offer, activeChat)
-        }
-      }
-      initWebRTC()
-
-    }
-
-
-    // Listen for WebRTC signaling events
-    socket?.on('offer', (offer, targetsocketId) => {
-      // Handle offer and create answer
-      // (use peerConnection.setRemoteDescription, createAnswer, etc.)
-    });
-
-    socket?.on('answer', (answer) => {
-      // Handle answer (use peerConnection.setRemoteDescription)
-    });
-
-    socket?.on('ice-candidate', (candidate) => {
-      // Handle ICE candidate (use peerConnection.addIceCandidate)
-    });
-
-    return () => {
-      socket?.disconnect();
-    };
-  }, [videoCallModal]);
 
   useEffect(() => {
     // console.log(selectedSocketId);
     return () => { };
   }, [selectedSocketId]);
 
-  const handleClose = (second) => {
-    // dispatch(modalAction({ name: "videoCallModal", val: false }));
-    setVideoModal(state => !state)
-  };
+
+
+
+ 
 
   return (
-    <>
+    <div >
 
       <div className="main" style={{ backgroundColor: "" }}>
         <Container
@@ -781,70 +733,9 @@ const Chatpage = () => {
         
       </div>
 
-      <Modal
-      className="modal-xl"
-      show={videoCall}
-      onHide={() => handleClose(false)}
-      //   dialogClassName="modal-90w"
-      aria-labelledby="example-custom-modal-styling-title"
-    >
-      <Modal.Body style={{ backgroundColor: "" }}>
-        <div className="row p-1" style={{ backgroundColor: "" }}>
-
-          <div className="col" style={{ backgroundColor: "" }}>
-            <div
-              className="remote-video"
-              style={{
-                display: "flex",
-                backgroundColor: "black",
-                height: "400px",
-                borderRadius: "5px",
-              }}
-            >
-              <video id="remoteVideo" ref={remoteVideoRef} className="video" autoPlay style={{ maxWidth: "100%" }} ></video>
-            </div>
-          </div>
-          <div className="col" style={{ backgroundColor: "" }}>
-            <div
-              className="self-video"
-              style={{
-                display: "flex",
-                backgroundColor: "black",
-                height: "400px",
-                borderRadius: "5px",
-              }}
-            >
-              <video id="localVideo" ref={localVideoRef} className="video" autoPlay style={{ maxWidth: "100%" }} ></video>
-
-            </div>
-          </div>
-        </div>
-        <div className="row mt-4">
-          <div
-            className="col"
-            style={{ display: "flex", justifyContent: "center" }}
-          >
-            <div
-              className="close-button mx-2"
-              style={{ backgroundColor: "white", color: "black" }}
-            >
-              <i class="bi bi-camera-video-fill"></i>
-            </div>
-            <div
-              className="close-button mx-2"
-              style={{ backgroundColor: "white", color: "black" }}
-            >
-              <i class="bi bi-mic-fill"></i>
-            </div>
-            <div className="close-button mx-2">
-              {/* End call ... */}
-              <i class="bi bi-telephone-x-fill"></i>
-            </div>
-          </div>
-        </div>
-      </Modal.Body>
-    </Modal>
-    </>
+     <VideoCall socket={socket} recepientSocketId={selectedSocketId?.userID}/>
+    <CallNotification/>
+    </div>
   );
 };
 

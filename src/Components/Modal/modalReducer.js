@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-videoCallModal: false
+videoCallModal: false,
+callNotification: false
 }
 export const modalSlice = createSlice({
     initialState,

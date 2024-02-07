@@ -1,9 +1,10 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import loginReducer from '../Components/Login/loginReducer'
 import OwnerReducer from '../OwnerReducer'
 import ChatpageReducers from '../Components/Chatpage/ChatpageReducers'
 import modalReducer from '../Components/Modal/modalReducer'
 import SocketReducer from '../Components/Socket.js/SocketReducer'
+import videoCallReducer from '../Components/videoCallReducer'
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     ownerInfo:OwnerReducer,
     chat:ChatpageReducers,
     modal:modalReducer,
-    socketInstance: SocketReducer
+    videoCall:videoCallReducer
+    
   },
 })
