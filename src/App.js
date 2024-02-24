@@ -8,6 +8,7 @@ import Chatpage from './Components/Chatpage/Chatpage'
 import Sidebar from './Components/Sidebar/Sidebar'
 import { Login } from "./Components/Login";
 import 'react-toastify/dist/ReactToastify.css';
+import VideoCall from "./Components/VideoCall";
 
 function App() {
   const [theme, setTheme] = useState("light");
@@ -87,6 +88,7 @@ function App() {
         {/* <Route path='/' element={<Login/>}/> */}
         <Route path="/" element={<Login/>}/>
         <Route path="/chat" element={<Chatpage/>}/>
+        {/* <Route path="/video-call" element={<VideoCall/}/> */}
           <Route path='freelancers'>
             {/* <Route index element={<Dele/>} /> */}
             <Route path="approve-freelancer" element={<Sidebar/>}/>
