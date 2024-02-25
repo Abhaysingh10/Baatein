@@ -107,6 +107,7 @@ const Chatpage = () => {
       dispatch(modalAction({ name: "videoCallModal", val: true }));
 
     })
+
     return () => {
       socket.off("private-message-received");
     };
@@ -131,7 +132,6 @@ const Chatpage = () => {
     localStorage.setItem("sessionID", sessionID);
     socket.userID = userID;
     setuserInfo({ userID, username });
-    console.log("ownerInfo", ownerInfo);
     dispatch(setOwnerInfo(ownerInfo));
   });
 
@@ -152,10 +152,18 @@ const Chatpage = () => {
     }
     setOnlineUsers(newArray);
     // console.log("new Array", newArray)
-    // console.log("new Array", data)
+    let selfArrayName = []
+    selfArrayName = data?.filter(
+      (obj) =>
+        obj?.user?.first_name?.toLowerCase() == userName?.toLowerCase()
+    );
+
+    localStorage.setItem('selfSocketId', JSON.stringify(selfArrayName[0]))
     newArray?.length > 0 &&
       localStorage.setItem("chat_index", JSON.stringify(newArray));
   });
+
+
 
   socket.on("connect_error", (err) => {
     if (err.message === "Invalid owner information.") {
@@ -168,6 +176,10 @@ const Chatpage = () => {
       dispatch(setOfferSdp(data))
       dispatch(modalAction({ name: "callNotification", val: true }));
     }
+  })
+
+  socket.on('candidate', data =>{
+    console.log("", data)
   })
 
   const handleClick = (event) => {

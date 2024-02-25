@@ -27,7 +27,7 @@ function CallNotification() {
       <Modal
         size="sm"
         show={callNotification}
-        // onHide={() => setSmShow(false)}
+        onHide={() => callRejected(false)}
         aria-labelledby="example-modal-sizes-title-sm"
         animation={false}
       >

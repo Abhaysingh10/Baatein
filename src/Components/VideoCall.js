@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { modalAction } from "./Modal/modalReducer";
@@ -9,19 +9,19 @@ function VideoCall(props) {
   const { socket, recepientSocketId } = props;
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const { ownerInfo } = useSelector((state) => state.ownerInfo);
   const { videoCallModal } = useSelector((state) => state.modal);
-  const { offer, offerSdp, callResponse } = useSelector(
+  // const [iceArray, setIceArray] = useState(null)
+  const iceRef = useRef([]);
+  const { offer, offerSdp, callResponse, senderSocketId } = useSelector(
     (state) => state.videoCall
   );
   const dispatch = useDispatch();
-
+  const pc = useRef(new RTCPeerConnection(null));
+  const recepientSocketIdRef = useRef(null)
+  const textRef = useRef();
   const handleClose = (second) => {
     dispatch(modalAction({ name: "videoCallModal", val: false }));
   };
-
-  const pc = useRef(new RTCPeerConnection(null));
-  const textRef = useRef()
   const getUserMedia = () => {
     const contraints = {
       audio: false,
@@ -29,14 +29,23 @@ function VideoCall(props) {
     };
     navigator.mediaDevices.getUserMedia(contraints).then((stream) => {
       localVideoRef.current.srcObject = stream;
-      stream.getTracks().forEach(track =>{
-        _pc.addTrack(track, stream)
-      })
+      stream.getTracks().forEach((track) => {
+        _pc.addTrack(track, stream);
+      });
     });
 
     const _pc = new RTCPeerConnection(null);
     _pc.onicecandidate = (e) => {
-      console.log(JSON.stringify(e.candidate));
+      // e.candidate && setIceArray(e.candidate)
+      console.log("candidate", e.candidate)
+      let iceArray = []
+      if (e.candidate) {
+        iceArray.push(e.candidate)
+        socket.emit('candidate', {candidate:e.candidate, recepientSocketId:recepientSocketIdRef})
+      }
+
+      iceRef.current = iceArray
+
     };
 
     _pc.oniceconnectionstatechange = (e) => {
@@ -45,22 +54,28 @@ function VideoCall(props) {
 
     _pc.ontrack = (e) => {
       // remote video feed
-      console.log("getting stream", e)
-      remoteVideoRef.current.srcObject = e.streams[0]
+      console.log("e", e.streams[0])
+      remoteVideoRef.current.srcObject = e.streams[0];
     };
 
     pc.current = _pc;
   };
 
-  const createOffer = () => {
+  const createOffer = async () => {
     pc.current
       .createOffer({
         offerToReceiveAudio: 1,
         offerToReceiveVideo: 1,
       })
       .then((sdp) => {
-        console.log(JSON.stringify(sdp));
+        // console.log(JSON.stringify(sdp));
         pc.current.setLocalDescription(sdp);
+        socket.emit("offerVideo", {
+          offer: sdp,
+          recepientSocketId: recepientSocketId,
+          senderSocketId: JSON.parse(localStorage.getItem("selfSocketId"))
+            .userID,
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -68,32 +83,47 @@ function VideoCall(props) {
   };
 
   const createAnswer = () => {
+    // console.log("inside create answer");
     pc.current
       .createAnswer({
         offerToReceiveAudio: 1,
         offerToReceiveVideo: 1,
       })
       .then((sdp) => {
-        console.log(JSON.stringify(sdp));
         pc.current.setLocalDescription(sdp);
+        socket.emit("answerVideo", {
+          answer: sdp,
+          recepientSocketId: recepientSocketId,
+          senderSocketId: senderSocketId,
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
+  const setRemoteDescription = async () => {
+    // console.log(offerSdp);
+    await pc.current.setRemoteDescription(new RTCSessionDescription(offerSdp));
+    createAnswer();
+  };
 
-  const setRemoteDescription = () => { 
-    const sdp = JSON.parse(textRef.current.value)
-    console.log(sdp)
-    pc.current.setRemoteDescription(new RTCSessionDescription(sdp))
-   }
+  const addCandidate = (candidate) => {
+    console.log("candidate", candidate)
+    pc.current.addIceCandidate(new RTCIceCandidate(JSON.parse(candidate))).then(data =>{
+      console.log("completed", data)
+    }).catch((err)=>{
+      console.log("error", err)
+    });
+  };
 
-   const addCandidate = () => { 
-    const candidate = JSON.parse(textRef.current.value)
-    console.log(candidate)
-    pc.current.addIceCandidate(candidate)    
-    }
+  const triggerIce = () => {
+    // console.log("iceArray", iceRef.current, recepientSocketIdRef?.current);
+    socket.emit("addIce", {
+      iceCandidate: JSON.stringify(iceRef.current),
+      recepientSocketId: recepientSocketIdRef?.current,
+    });
+  };
 
   const answer = async () => {
     const configuration = {
@@ -105,8 +135,7 @@ function VideoCall(props) {
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
       socket.emit("answerVideo", {
-        offer: answer?.type,
-        sdp: answer?.sdp,
+        answer: answer,
         recepientSocketId: recepientSocketId,
       });
     }
@@ -127,13 +156,50 @@ function VideoCall(props) {
 
   useEffect(() => {
     videoCallModal && getUserMedia();
+    callResponse && setRemoteDescription();
     return () => {};
-  }, [videoCallModal]);
+  }, [videoCallModal, callResponse]);
+
+  useEffect(() => {
+    socket.on("answerVideo", (data) => {
+      // console.log("answerVideo", data.answer);
+      pc.current
+        .setRemoteDescription(new RTCSessionDescription(data?.answer))
+        .then((data) => {
+          // console.log("done setting remote description", iceRef.current);
+          triggerIce();
+        })
+        .catch((err) => {
+          // console.log("setRemoteDescription", err);
+        });
+    });
+
+  
+
+    socket.on("addIce", (data) => {
+      addCandidate(data?.iceCandidate)
+    });
+
+    return () => {};
+  }, [socket]);
+
+  useEffect(() => {
+
+    if (props != null || props != undefined) {
+      recepientSocketIdRef.current = props.recepientSocketId
+    }
+  
+    return () => {
+      
+    }
+  }, [props])
+
+  console.log("iceRef", iceRef.current)
 
   return (
     <div>
       <Modal
-        className="modal-xl"
+        className="modal-md"
         show={videoCallModal}
         onHide={() => handleClose(false)}
         //   dialogClassName="modal-90w"
@@ -147,7 +213,7 @@ function VideoCall(props) {
                 style={{
                   display: "flex",
                   backgroundColor: "black",
-                  height: "400px",
+                  height: "200px",
                   borderRadius: "5px",
                 }}
               >
@@ -166,7 +232,7 @@ function VideoCall(props) {
                 style={{
                   display: "flex",
                   backgroundColor: "black",
-                  height: "400px",
+                  height: "200px",
                   borderRadius: "5px",
                 }}
               >
@@ -185,7 +251,7 @@ function VideoCall(props) {
               className="col"
               style={{ display: "flex", justifyContent: "center" }}
             >
-              <button
+              {/* <button
                 onClick={() => {
                   createOffer();
                 }}
@@ -199,29 +265,32 @@ function VideoCall(props) {
                 className="mx-2"
               >
                 Create Answer
-              </button>
-              {/* <div
+              </button> */}
+              <div
                 className="close-button mx-2"
-                style={{ backgroundColor: "white", color: "black", cursor:"pointer" }}
-                 onClick={()=>{
-                  enableVideo()
-                  makeCall()
-
+                style={{
+                  backgroundColor: "white",
+                  color: "black",
+                  cursor: "pointer",
                 }}
               >
-                <i className="bi bi-camera-video-fill"></i>
+                <i
+                  className="bi bi-camera-video-fill"
+                  onClick={createOffer}
+                ></i>
               </div>
               <div
                 className="close-button mx-2"
-                style={{ backgroundColor: "white", color: "black" }}>
+                style={{ backgroundColor: "white", color: "black" }}
+              >
                 <i className="bi bi-mic-fill"></i>
               </div>
               <div className="close-button mx-2">
-                <i class="bi bi-telephone-x-fill"></i>
-              </div> */}
+                <i className="bi bi-telephone-x-fill"></i>
+              </div>
             </div>
           </div>
-
+{/* 
           <div className="row mt-1">
             <div
               className="col"
@@ -235,11 +304,14 @@ function VideoCall(props) {
               className="col"
               style={{ display: "flex", justifyContent: "center" }}
             >
-              {/* <button>Set local description</button> */}
-              <button className="mx-1" onClick={setRemoteDescription}>Set remote description</button>
-              <button className="mx-1" onClick={addCandidate}>Set ICE</button>
+              <button className="mx-1" onClick={setRemoteDescription}>
+                Set remote description
+              </button>
+              <button className="mx-1" onClick={addCandidate}>
+                Set ICE
+              </button>
             </div>
-          </div>
+          </div> */}
         </Modal.Body>
       </Modal>
     </div>
