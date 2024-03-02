@@ -1,10 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef  } from "react";
 import { Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { modalAction } from "./Modal/modalReducer";
-import { UnderlineOutlined } from "@ant-design/icons";
-import { json } from "react-router-dom";
-
 function VideoCall(props) {
   const { socket, recepientSocketId } = props;
   const localVideoRef = useRef(null);
@@ -12,19 +9,18 @@ function VideoCall(props) {
   const { videoCallModal } = useSelector((state) => state.modal);
   // const [iceArray, setIceArray] = useState(null)
   const iceRef = useRef([]);
-  const { offer, offerSdp, callResponse, senderSocketId } = useSelector(
+  const {  offerSdp, callResponse, senderSocketId } = useSelector(
     (state) => state.videoCall
   );
   const dispatch = useDispatch();
   const pc = useRef(new RTCPeerConnection(null));
   const recepientSocketIdRef = useRef(null)
-  const textRef = useRef();
   const handleClose = (second) => {
     dispatch(modalAction({ name: "videoCallModal", val: false }));
   };
   const getUserMedia = () => {
     const contraints = {
-      audio: false,
+      audio: true,
       video: true,
     };
     navigator.mediaDevices.getUserMedia(contraints).then((stream) => {
@@ -37,11 +33,11 @@ function VideoCall(props) {
     const _pc = new RTCPeerConnection(null);
     _pc.onicecandidate = (e) => {
       // e.candidate && setIceArray(e.candidate)
-      console.log("candidate", e.candidate)
+      // console.log("recepientSocketIdRef", recepientSocketIdRef)
       let iceArray = []
       if (e.candidate) {
         iceArray.push(e.candidate)
-        socket.emit('candidate', {candidate:e.candidate, recepientSocketId:recepientSocketIdRef})
+        socket.emit('candidate', {candidate:e.candidate, recepientSocketId:recepientSocketIdRef.current})
       }
 
       iceRef.current = iceArray
@@ -109,12 +105,15 @@ function VideoCall(props) {
   };
 
   const addCandidate = (candidate) => {
-    console.log("candidate", candidate)
-    pc.current.addIceCandidate(new RTCIceCandidate(JSON.parse(candidate))).then(data =>{
-      console.log("completed", data)
-    }).catch((err)=>{
-      console.log("error", err)
-    });
+    // console.log("candidate", candidate)
+    candidate.map((candy) => {
+      console.log("candy",candy)
+      pc.current.addIceCandidate(new RTCIceCandidate(candy)).then(data =>{
+        console.log("completed", data)
+      }).catch((err)=>{
+        console.log("error", err)
+      });
+    })
   };
 
   const triggerIce = () => {
@@ -122,37 +121,10 @@ function VideoCall(props) {
     socket.emit("addIce", {
       iceCandidate: JSON.stringify(iceRef.current),
       recepientSocketId: recepientSocketIdRef?.current,
+      senderSocketId:senderSocketId
     });
   };
 
-  const answer = async () => {
-    const configuration = {
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    };
-    const peerConnection = new RTCPeerConnection(configuration);
-    if (offer == "offer") {
-      peerConnection.setRemoteDescription(new RTCSessionDescription(offerSdp));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit("answerVideo", {
-        answer: answer,
-        recepientSocketId: recepientSocketId,
-      });
-    }
-  };
-
-  const makeCall = async () => {
-    const configuration = {
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    };
-    const peerConnection = new RTCPeerConnection(configuration);
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    socket.emit("offerVideo", {
-      offer: offer,
-      recepientSocketId: recepientSocketId,
-    });
-  };
 
   useEffect(() => {
     videoCallModal && getUserMedia();
@@ -175,8 +147,8 @@ function VideoCall(props) {
     });
 
   
-
     socket.on("addIce", (data) => {
+      console.log(data?.iceCandidate)
       addCandidate(data?.iceCandidate)
     });
 
@@ -194,7 +166,8 @@ function VideoCall(props) {
     }
   }, [props])
 
-  console.log("iceRef", iceRef.current)
+  
+
 
   return (
     <div>
