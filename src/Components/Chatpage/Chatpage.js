@@ -2,7 +2,15 @@ import "./Chatpage.scss";
 import "react-perfect-scrollbar/dist/css/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import React, { useEffect, useRef, useState } from "react";
-import { Col, Container, Modal, OverlayTrigger, Popover, Row } from "react-bootstrap";
+import {
+  Button,
+  Col,
+  Container,
+  Modal,
+  OverlayTrigger,
+  Popover,
+  Row,
+} from "react-bootstrap";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMessages } from "./ChatpageAction.js";
@@ -41,6 +49,7 @@ const Chatpage = () => {
   const [show, setShow] = useState(false);
   const [imgUrl, setimgUrl] = useState("");
   const [fileDetails, setfileDetails] = useState();
+  const [fileName, setFileName] = useState();
   const [chatIndex, setchatIndex] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -69,11 +78,10 @@ const Chatpage = () => {
     chat_index && setOnlineUsers(JSON.parse(chat_index));
     owner_info && dispatch(setOwnerInfo(JSON.parse(owner_info)));
 
-    return () => { };
+    return () => {};
   }, []);
 
   useEffect(() => {
-    // console.log("Owner Info", ownerInfo);
 
     const sessionID = localStorage.getItem("sessionID");
     if (!socket.connected) {
@@ -88,43 +96,37 @@ const Chatpage = () => {
         // dispatch(setSocketInstance(socket))
       }
     }
-    return () => { };
+    return () => {};
   }, [ownerInfo]);
 
   useEffect(() => {
     socket.on("private-message-received", (message) => {
-      // console.log("private-message-received", message);
-      console.log(activeChat?.user?.id, message?.senderId);
       if (activeChat?.user?.id === message?.senderId) {
         dispatch(addMessages(message));
       }
       toast.success(message?.content);
     });
 
-    socket.on('offer', (offer, socketId)=>{
-      console.log("offer", offer)
-      console.log("socketId", socketId)
+    socket.on("offer", (offer, socketId) => {
       dispatch(modalAction({ name: "videoCallModal", val: true }));
-
-    })
+    });
 
     return () => {
       socket.off("private-message-received");
     };
   }, [socket, activeChat]);
 
-  // console.log("selectedSocketId", selectedSocketId);
 
   useEffect(() => {
+
     if (scrollContainerRef?.current) {
-      // scrollContainerRef.current.scrollTop =
-      //   scrollContainerRef?.current?.scrollHeight;
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef?.current?.scrollHeight;
     }
   }, [messages]);
 
   useEffect(() => {
-    // console.log("Online users", onlineUsers);
-    return () => { };
+    return () => {};
   }, [onlineUsers]);
 
   socket.on("session", ({ sessionID, userID, username, ownerInfo }) => {
@@ -142,7 +144,6 @@ const Chatpage = () => {
         (obj) =>
           obj?.user?.first_name?.toLowerCase() !== userName?.toLowerCase()
       );
-      
     } else {
       newArray = data?.filter(
         (obj) =>
@@ -151,47 +152,46 @@ const Chatpage = () => {
       );
     }
     setOnlineUsers(newArray);
-    // console.log("new Array", newArray)
-    let selfArrayName = []
+    let selfArrayName = [];
     selfArrayName = data?.filter(
-      (obj) =>
-        obj?.user?.first_name?.toLowerCase() == userName?.toLowerCase()
+      (obj) => obj?.user?.first_name?.toLowerCase() == userName?.toLowerCase()
     );
 
-    localStorage.setItem('selfSocketId', JSON.stringify(selfArrayName[0]))
+    localStorage.setItem("selfSocketId", JSON.stringify(selfArrayName[0]));
     newArray?.length > 0 &&
       localStorage.setItem("chat_index", JSON.stringify(newArray));
   });
 
-
-
   socket.on("connect_error", (err) => {
     if (err.message === "Invalid owner information.") {
-      // console.log("Invalid username");
     }
   });
 
-  socket.on("offerVideo", data => {
-    if (data?.offer?.type == 'offer') {
-      dispatch(setOfferSdp(data))
+  socket.on("offerVideo", (data) => {
+    if (data?.offer?.type == "offer") {
+      dispatch(setOfferSdp(data));
       dispatch(modalAction({ name: "callNotification", val: true }));
     }
-  })
+  });
 
-  socket.on('candidate', data =>{
-    console.log("", data)
-  })
+  socket.on("candidate", (data) => {
+  });
 
   const handleClick = (event) => {
     hiddenFileInput.current.click();
   };
+  const handleClose = () => setShow(false);
+  
 
   const handleChange = (event) => {
     const fileUploaded = event.target.files[0];
     console.log("fileUploaded", fileUploaded);
+    console.log("fileUploaded.name", fileUploaded.name);
+    fileUploaded && setFileName(fileUploaded.name);
     fileUploaded && setfileDetails(fileUploaded);
     fileUploaded && setimgUrl(URL.createObjectURL(fileUploaded));
     fileUploaded && setShow(true);
+
     // handleFile(fileUploaded);
   };
 
@@ -219,6 +219,23 @@ const Chatpage = () => {
     console.log("recepientSocketId", selectedSocketId?.user.id);
   };
 
+  const onImageSent = () => {
+    // socket.emit("private message", {
+    //   // content: fileDetails,
+    //   fileName: fileName,
+    //   to: selectedSocketId?.userID,
+    //   senderId: ownerInfo?.id,
+    //   receiverId: selectedSocketId?.user?.id,
+    //   messageType: "image",
+    //   timestamp: Date.now(),
+    // });
+
+    
+
+
+    setShow(false);
+  };
+
   function moveItemToStart(array, n) {
     // Check if the provided index is within the array bounds
     if (n < 0 || n >= array.length) {
@@ -244,13 +261,11 @@ const Chatpage = () => {
   };
 
   const addFriend = (ele) => {
-    // console.log("ele",ele)
     setshowModal(true);
   };
 
   const logout = () => {
     socket.disconnect();
-    console.log("called");
     localStorage.clear();
     navigate("/");
   };
@@ -283,11 +298,9 @@ const Chatpage = () => {
   const videoCall = () => {
     dispatch(modalAction({ name: "videoCallModal", val: true }));
     // setVideoModal(state => !state)
-
   };
 
   const fetchMoreData = () => {
-    console.log("fetched more triggered");
     fetchMessages(
       ownerInfo?.id,
       selectedSocketId?.user?.id,
@@ -298,20 +311,12 @@ const Chatpage = () => {
     );
   };
 
-
   useEffect(() => {
-    // console.log(selectedSocketId);
-    return () => { };
+    return () => {};
   }, [selectedSocketId]);
 
-
-
-
- 
-
   return (
-    <div >
-
+    <div>
       <div className="main" style={{ backgroundColor: "" }}>
         <Container
           className="container-div"
@@ -385,7 +390,7 @@ const Chatpage = () => {
                               style={{ backgroundColor: "" }}
                               onClick={() => {
                                 dispatch(setActiveChat(ele));
-                                selectSocketId(ele, i)
+                                selectSocketId(ele, i);
                               }}
                             >
                               <Row style={{ backgroundColor: "" }}>
@@ -442,14 +447,14 @@ const Chatpage = () => {
                           (item) =>
                             item.friend_id === selectedSocketId?.user?.id
                         ) && (
-                            <span
-                              className="mx-2"
-                              onClick={addFriend}
-                              style={{ cursor: "pointer" }}
-                            >
-                              <i className="bi bi-person-plus"></i>
-                            </span>
-                          )}{" "}
+                          <span
+                            className="mx-2"
+                            onClick={addFriend}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <i className="bi bi-person-plus"></i>
+                          </span>
+                        )}{" "}
                         <span> </span>
                       </Col>
                       <Col className="option-icon" xs={3} sm={3} md={3} lg={3}>
@@ -457,7 +462,9 @@ const Chatpage = () => {
                         <i
                           className="bi bi-camera-video"
                           style={{ cursor: "pointer" }}
-                          onClick={()=>{videoCall()}}
+                          onClick={() => {
+                            videoCall();
+                          }}
                         ></i>
                       </Col>
                     </Row>
@@ -472,8 +479,8 @@ const Chatpage = () => {
                   >
                     <InfiniteScroll
                       inverse={true}
-                      dataLength={messages && messages?.length}
-                      hasMore={!(totalCount == messages?.length)}
+                      dataLength={20}
+                      hasMore={false}
                       next={fetchMoreData}
                       height="calc(100vh - 180px)"
                       className="infinte-scroll"
@@ -490,7 +497,10 @@ const Chatpage = () => {
                         {messages?.map((ele, i) => {
                           if (ele?.senderId === ownerInfo?.id) {
                             return (
-                              <div className="message-sent" key={i}>
+                              <div
+                                className="message-sent"
+                                key={ele?.messageId}
+                              >
                                 {ele?.messageType === "text" && (
                                   <div className="message-content-parent">
                                     <span className="text-message position-relative">
@@ -666,6 +676,7 @@ const Chatpage = () => {
                       <Controller
                         control={control}
                         name="messageBox"
+                        rules={{ required: "This field is required !" }}
                         render={({ field: { onChange, onBlur, value } }) => (
                           <input
                             color="white"
@@ -728,25 +739,29 @@ const Chatpage = () => {
           </Row>
         </Container>
         {loginLoading && <Loader />}
-        <MediaUpload
-          setShow={setShow}
-          show={show}
-          imgUrl={imgUrl}
-          socket={socket}
-          fileDetails={fileDetails}
-          selectedSocketId={selectedSocketId}
-        />
+        <Modal show={show} onHide={handleClose} centered>
+          <Modal.Body>
+            <img src={imgUrl} alt="" style={{ width: "100%" }} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={onImageSent}>
+              Send
+            </Button>
+          </Modal.Footer>
+        </Modal>
         <ToastContainer />
         <AddFriend
           showModal={showModal}
           setshowModal={setshowModal}
           friend_id={selectedSocketId?.user?.id}
         />
-        
       </div>
 
-     <VideoCall socket={socket} recepientSocketId={selectedSocketId?.userID}/>
-    <CallNotification/>
+      <VideoCall socket={socket} recepientSocketId={selectedSocketId?.userID} />
+      <CallNotification />
     </div>
   );
 };

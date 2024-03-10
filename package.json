@@ -19,6 +19,7 @@
     "emoji-mart": "^5.5.2",
     "emoji-picker-react": "^4.5.16",
     "emotion": "^11.0.0",
+    "fs": "^0.0.1-security",
     "moment": "^2.29.4",
     "mysql2": "^3.6.1",
     "react": "^18.2.0",
